@@ -1,0 +1,32 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enrichment overlay for the Apibara Vehicle Auction Data API
+  version: 1.0.0
+extends: ../openapi/apibara-tech-openapi.json
+x-provenance:
+  generated: '2026-09-18'
+  method: generated
+  source: >-
+    API Evangelist enrichment pipeline. Non-destructive overlay recording
+    catalog-side annotations; the upstream OpenAPI is never mutated.
+actions:
+  - target: $.info
+    description: Attach catalog cross-references and the read-only / agent-native posture.
+    update:
+      x-apis-io:
+        provider: apibara-tech
+        posture: read-only
+        agent_native: true
+        mcp_endpoint: https://apibara.tech/mcp
+        mcp_tools: 8
+        arazzo_workflows:
+          - arazzo/apibara-tech-incremental-sync.arazzo.yaml
+          - arazzo/apibara-tech-vin-research.arazzo.yaml
+        idempotency: na
+        reversibility: na
+  - target: $.paths.*.get
+    description: >-
+      Flag that every operation is a safe, idempotent GET (read-only surface;
+      no write, retry-safe).
+    update:
+      x-safe-retry: true

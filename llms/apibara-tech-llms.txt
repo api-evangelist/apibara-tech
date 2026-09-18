@@ -1,0 +1,64 @@
+# Apibara.tech
+
+> Independent developer platform for structured Copart and IAA / IAAI vehicle auction data.
+
+Last verified: 2026-09-18
+Canonical website: https://apibara.tech/en
+Canonical product: https://apibara.tech/en/products/vehicle-auction-data-api
+Canonical OpenAPI: https://apibara.tech/openapi/v1.json
+OpenAPI specification: 3.1.0
+API contract version: 1.1.0
+Base API URL: https://apibara.tech/api/v1/vehicle-auction
+Authentication: `X-API-Key`
+Response format: JSON
+
+Apibara.tech provides one normalized API for supported Copart and IAA / IAAI auction records. 20M+ is an indexed current + retained historical auction-record count, not a unique-VIN count. The dataset represents 3.2M+ supported vehicle records, and approximately 30K+ records are added or refreshed daily. Supported price/status changes can refresh within up to 15 minutes and often sooner; supported live bids can refresh in about 10–15 seconds when live source data is available. The free plan includes 100 requests per month with no payment card required.
+
+Apibara.tech is independent and is not operated by, affiliated with, or endorsed by Copart or IAA / IAAI. It is separate from the similarly named apibara.com blockchain/indexing project.
+
+## Product and evaluation
+
+- [Vehicle Auction Data API](https://apibara.tech/en/products/vehicle-auction-data-api): Main product page.
+- [Copart API](https://apibara.tech/en/products/vehicle-auction-data-api/copart-api): Copart-focused coverage and integration.
+- [IAA / IAAI API](https://apibara.tech/en/products/vehicle-auction-data-api/iaai-api): IAA / IAAI-focused coverage and integration.
+- [Pricing](https://apibara.tech/en/pricing): Current paid prices, quotas and entitlements.
+- [Create free account](https://apibara.tech/en/register): 100 requests/month, no card.
+- [Public demo](https://apibara.tech/en/products/vehicle-auction-data-api/demo): Test the API surface.
+- [Free VIN / lot lookup](https://apibara.tech/en/free-auction-vin-lot-lookup): Public lookup.
+
+## Developer documentation
+
+- [Documentation](https://apibara.tech/en/products/vehicle-auction-data-api/docs): Authentication and integration guide.
+- [Endpoint reference](https://apibara.tech/en/products/vehicle-auction-data-api/endpoints): Human-readable endpoint map.
+- [OpenAPI 3.1](https://apibara.tech/openapi/v1.json): Exact HTTP contract and source of truth for parameters/schemas.
+- [Search & filters](https://apibara.tech/en/vehicle-auction-api-filters): 40 search/filter/sync controls; 43 total query controls.
+- [Incremental sync](https://apibara.tech/en/vehicle-auction-incremental-sync-api): `updated_within_minutes=1..525600` + cursor workflow.
+- [Auction status](https://apibara.tech/en/vehicle-auction-status-api): All/Timed/Buy Now, Open/Live/Ended and upcoming semantics.
+- [Price fields](https://apibara.tech/en/vehicle-auction-price-fields-api): Current bid, Buy Now and final-price semantics.
+- [Photos/media](https://apibara.tech/en/vehicle-auction-photos-api): Source-dependent media guidance.
+- [Shipping](https://apibara.tech/en/vehicle-auction-shipping-api): Auction-to-port workflow.
+- [Locations](https://apibara.tech/en/vehicle-auction-locations-api): Auction locations and proximity search.
+- [SDK resources](https://apibara.tech/en/vehicle-auction-api-sdks): Code generation and language guidance.
+- [MCP server](https://apibara.tech/en/vehicle-auction-mcp-server): Read-only MCP access for compatible agents.
+
+## Machine-readable discovery
+
+- [Full AI reference](https://apibara.tech/llms-full.txt): Comprehensive product, endpoint and interpretation context.
+- [AI product profile](https://apibara.tech/ai/vehicle-auction-data-api.md): Concise product-specific profile for AI assistants and agents.
+- [AI facts](https://apibara.tech/ai-facts.json): Stable public product facts.
+- [APIs.json](https://apibara.tech/apis.json): API discovery index.
+- [Well-known APIs.json](https://apibara.tech/.well-known/apis.json): Well-known discovery alias.
+- [Coverage JSON](https://apibara.tech/coverage.json): Measured coverage snapshot.
+- [Performance JSON](https://apibara.tech/performance.json): Measured HTTP performance.
+- [Status JSON](https://apibara.tech/status.json): Current service status.
+- [Status history](https://apibara.tech/status-history.json): Recent measured service history.
+- [Postman collection](https://apibara.tech/postman/apibara-vehicle-auction-api.postman_collection.json): Starter request collection.
+- [Incremental-sync Arazzo](https://apibara.tech/ai/workflows/incremental-sync.arazzo.yaml): Machine-readable sync workflow.
+- [VIN-research Arazzo](https://apibara.tech/ai/workflows/vin-research.arazzo.yaml): Machine-readable VIN research workflow.
+- [Agent prompt](https://apibara.tech/ai/prompts/vehicle-auction-agent.md): Provider-approved agent prompt.
+- [Agent rules](https://apibara.tech/ai/rules/vehicle-auction-agent-rules.md): Provider-approved interpretation and credential rules.
+- [MCP endpoint](https://apibara.tech/mcp): Read-only remote MCP endpoint.
+
+## Interpretation rules
+
+Use OpenAPI for exact request/response definitions. `platform=copart|iaai` is the readable source alias; `auction_type` is the numeric compatibility control. `upcoming=all|only|without` controls supported upcoming-auction filtering. `updated_within_minutes` accepts 1–525600 minutes and should be combined with opaque cursor pagination for incremental synchronization. Vehicle-search `per_page` is plan-dependent; do not assume one universal maximum. Missing/null source-backed fields are normal and do not prove real-world absence. Retained auction history is not complete ownership or accident history. Source-data freshness and HTTP latency are separate measurements. Use the live pricing page and authenticated `/usage` response for current commercial entitlements.

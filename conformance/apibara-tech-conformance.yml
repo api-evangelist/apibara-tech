@@ -1,0 +1,34 @@
+generated: '2026-09-18'
+method: derived
+source: >-
+  openapi/apibara-tech-openapi.json plus provider-published discovery artifacts
+  (apis.json, Arazzo workflows). Docs reviewed for compliance claims.
+note: >-
+  Cross-cutting standards only. Vehicle-auction / salvage-auction data has no
+  ratified domain interchange standard, so no domain_standard_conformance is
+  asserted (reward-only; nothing invented). No regulatory compliance program,
+  SOC 2 / ISO 27001 / PCI / HIPAA, or OAuth/OIDC is claimed.
+conformance:
+  - id: openapi-3.1
+    conforms: true
+    evidence: openapi/apibara-tech-openapi.json (openapi 3.1.0, 11 operations)
+  - id: arazzo-1.1
+    conforms: true
+    evidence: >-
+      https://apibara.tech/ai/workflows/incremental-sync.arazzo.yaml and
+      vin-research.arazzo.yaml (arazzo 1.1.0)
+  - id: apis-json
+    conforms: true
+    evidence: https://apibara.tech/.well-known/apis.json (200)
+  - id: cursor-pagination
+    conforms: true
+    evidence: meta.next_cursor / meta.prev_cursor across list operations
+  - id: rfc9457
+    conforms: false
+    evidence: >-
+      Errors use a custom { ok, status, message, errors } envelope
+      (application/json), not application/problem+json.
+  - id: oauth2
+    conforms: false
+    evidence: API-key (X-API-Key) only; no OAuth2 security scheme.
+domain_standard_conformance: none

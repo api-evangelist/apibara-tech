@@ -1,0 +1,56 @@
+generated: '2026-09-18'
+method: searched
+source: >-
+  https://apibara.tech/en/products/vehicle-auction-data-api/docs and
+  openapi/apibara-tech-openapi.json
+note: >-
+  Read-only REST/JSON API (11 GET operations, no write surface). Cross-cutting
+  runtime semantics below are derived from the contract and confirmed in the
+  developer docs.
+authentication:
+  style: api-key
+  header: X-API-Key
+  note: Single key authenticates all requests; no separate test/live modes.
+pagination:
+  style: cursor
+  request_params: [cursor, per_page]
+  response_fields: [meta.next_cursor, meta.prev_cursor, meta.per_page]
+  note: >-
+    Opaque cursor. per_page maximum varies by plan (20/30/40). Enforced max is
+    surfaced at runtime via the X-Per-Page-Limit response header.
+response_envelope:
+  success: '{ "ok": true, "data": [...], "meta": {...} }'
+  error: '{ "ok": false, "status": <code>, "message": "...", "errors": { "<field>": ["..."] } }'
+  format: custom-json
+  note: Not RFC 9457 problem+json; a custom ok/message/errors envelope.
+rate_limit_signaling:
+  headers: [X-RateLimit-Limit, X-RateLimit-Remaining, Retry-After]
+  quota_headers: [X-Subscription-Limit, X-Subscription-Used, X-Subscription-Remaining, X-Subscription-Period-Start, X-Subscription-Period-End]
+  exhaustion_status: 429
+versioning:
+  scheme: contract-version + path-version
+  api_contract_version: 1.1.0
+  path_prefix: /api/v1/vehicle-auction
+  note: >-
+    OpenAPI is declared the authoritative contract. Changes are described as
+    additive; descriptions/examples improve without changing endpoint behavior.
+request_id:
+  present: false
+  note: No request-id or tracing header documented or declared in the contract.
+incremental_sync:
+  parameter: updated_within_minutes
+  range: 1..525600
+  note: Combine with cursor pagination for change-window synchronization.
+idempotency:
+  coverage: na
+  note: >-
+    Read-only API; all 11 operations are GET and therefore inherently safe to
+    retry. No Idempotency-Key mechanism exists or is needed.
+reversibility:
+  status: na
+  note: >-
+    Read-only API with no write, create, delete, or state-changing operation, so
+    there is nothing to reverse.
+dry_run_mode:
+  status: na
+  note: Read-only API; no mutating action to rehearse.

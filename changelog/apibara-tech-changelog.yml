@@ -1,0 +1,29 @@
+generated: '2026-09-18'
+method: searched
+source: https://apibara.tech/en/changelog
+scheme: dated
+note: >-
+  Dated changelog without semantic version tags on entries; the OpenAPI contract
+  (api_contract_version 1.1.0) is the authoritative version reference. Changes
+  are described as primarily additive.
+current_contract_version: 1.1.0
+entries:
+  - date: '2026-09-18'
+    title: Search, sync and machine discovery
+    breaking: false
+    highlights: >-
+      Published search/filtering and incremental-sync guides, documented the
+      43-control vehicle query surface, and added discovery tooling (APIs.json,
+      Postman collection metadata).
+  - date: '2026-09-17'
+    title: Dataset scale and AI discovery
+    breaking: false
+    highlights: >-
+      Updated supported vehicle dataset to 3.2M+, expanded machine-readable
+      discovery options, and introduced read-only MCP tooling.
+  - date: '2026-09'
+    title: Coverage, performance and source pages
+    breaking: false
+    highlights: >-
+      Added dedicated Copart and IAAI API surfaces with machine-readable
+      coverage and performance resources.

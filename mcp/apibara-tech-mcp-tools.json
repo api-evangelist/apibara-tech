@@ -1,0 +1,301 @@
+{
+  "tools": [
+    {
+      "name": "search_auction_vehicles",
+      "title": "Search auction vehicles",
+      "description": "Search supported Copart and IAAI vehicle auction records. Use exact documented filters; fields can be nullable and source-dependent.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "s": {
+            "type": "string",
+            "description": "VIN, lot number or title search."
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "copart",
+              "iaai"
+            ]
+          },
+          "lot_status": {
+            "type": "string",
+            "enum": [
+              "All",
+              "Timed",
+              "Buy Now"
+            ]
+          },
+          "lot_sub_status": {
+            "type": "string",
+            "enum": [
+              "Open",
+              "Live",
+              "Ended"
+            ]
+          },
+          "upcoming": {
+            "type": "string",
+            "enum": [
+              "all",
+              "only",
+              "without"
+            ]
+          },
+          "updated_within_minutes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 525600
+          },
+          "make": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "year_from": {
+            "type": "integer"
+          },
+          "year_to": {
+            "type": "integer"
+          },
+          "price_min": {
+            "type": "number"
+          },
+          "price_max": {
+            "type": "number"
+          },
+          "facility_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "loc_state": {
+            "type": "string"
+          },
+          "today_only": {
+            "type": "boolean"
+          },
+          "has_shipping_price": {
+            "type": "boolean"
+          },
+          "per_page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "type": "string"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_vehicle",
+      "title": "Get vehicle",
+      "description": "Retrieve one supported vehicle record by the VIN or slug_vin accepted by the canonical detail endpoint.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "minLength": 1,
+            "description": "VIN or slug_vin accepted by the canonical vehicle detail endpoint."
+          }
+        },
+        "required": [
+          "identifier"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_vehicle_history",
+      "title": "Get vehicle auction history",
+      "description": "Retrieve retained Copart + IAAI auction history for one supported vehicle when available. This is not a complete ownership or accident history.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "minLength": 1,
+            "description": "VIN or slug_vin accepted by the canonical vehicle detail endpoint."
+          }
+        },
+        "required": [
+          "identifier"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_related_vehicles",
+      "title": "Get related vehicles",
+      "description": "Retrieve related supported auction vehicles.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "minLength": 1,
+            "description": "VIN or slug_vin accepted by the canonical vehicle detail endpoint."
+          },
+          "per_page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "identifier"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_vehicle_filters",
+      "title": "Get vehicle filters",
+      "description": "Retrieve current supported filter metadata for search UIs and integrations.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": [
+              "copart",
+              "iaai"
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_auction_locations",
+      "title": "List auction locations",
+      "description": "Retrieve supported auction facilities and locations.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": [
+              "copart",
+              "iaai"
+            ]
+          },
+          "s": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "calculate_shipping",
+      "title": "Calculate auction-to-port shipping",
+      "description": "Retrieve supported auction-to-port shipping information by VIN or lot number when location and route data are available.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "vin": {
+            "type": "string"
+          },
+          "lot_number": {
+            "type": "string"
+          },
+          "port": {
+            "type": "string"
+          },
+          "port_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        },
+        "anyOf": [
+          {
+            "required": [
+              "vin"
+            ]
+          },
+          {
+            "required": [
+              "lot_number"
+            ]
+          }
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_api_usage",
+      "title": "Get API usage",
+      "description": "Retrieve authenticated API usage and current plan limits for the supplied X-API-Key.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    }
+  ],
+  "ttlMs": 3600000,
+  "cacheScope": "public"
+}

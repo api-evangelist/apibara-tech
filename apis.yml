@@ -5,6 +5,7 @@ description: >-
   filter metadata, auction locations, shipping calculation, and an image proxy. Offers both a REST/JSON API and a hosted
   read-only MCP server. Not affiliated with the similarly named apibara.com blockchain indexer.
 url: https://raw.githubusercontent.com/api-evangelist/apibara-tech/refs/heads/main/apis.yml
+image: https://apibara.tech/seo/1783599358_p64LSzUP.png
 created: '2026-09-18'
 modified: '2026-09-18'
 specificationVersion: '0.21'
@@ -38,6 +39,7 @@ apis:
       tools mapped to this API.
     humanURL: https://apibara.tech/en/products/vehicle-auction-data-api
     baseURL: https://apibara.tech/api/v1/vehicle-auction
+    image: https://apibara.tech/seo/1783599358_p64LSzUP.png
     tags:
       - automotive
       - vehicle-auction-data
@@ -61,28 +63,104 @@ apis:
       - Agent-Native
     properties:
       - type: OpenAPI
+        url: openapi/apibara-tech-openapi.json
+      - type: OpenAPI
+        name: Provider-hosted OpenAPI 3.1 (canonical)
         url: https://apibara.tech/openapi/v1.json
       - type: OpenAPI
+        name: Provider-hosted OpenAPI 3.1 (compatibility alias)
         url: https://apibara.tech/openapi/vehicle-auction-data-api.json
+      - type: Overlay
+        url: overlays/apibara-tech-vehicle-auction-overlay.yaml
+      - type: MCPServer
+        url: https://apibara.tech/mcp
+      - type: ToolCrosswalk
+        url: mcp/apibara-tech-tool-crosswalk.yml
+      - type: Arazzo
+        name: Incremental vehicle-auction sync
+        url: arazzo/apibara-tech-incremental-sync.arazzo.yaml
+      - type: Arazzo
+        name: VIN auction research
+        url: arazzo/apibara-tech-vin-research.arazzo.yaml
+      - type: ErrorCatalog
+        url: errors/apibara-tech-problem-types.yml
+      - type: RateLimits
+        url: rate-limits/apibara-tech-rate-limits.yml
+      - type: Plans
+        url: plans/apibara-tech-plans-pricing.yml
+      - type: DataModel
+        url: data-model/apibara-tech-data-model.yml
       - type: PostmanCollection
         url: https://apibara.tech/postman/apibara-vehicle-auction-api.postman_collection.json
       - type: Documentation
         url: https://apibara.tech/en/products/vehicle-auction-data-api/docs
-      - type: LLMsTxt
-        url: https://apibara.tech/llms.txt
-      - type: LLMsTxt
-        url: https://apibara.tech/llms-full.txt
-      - type: MCPServer
-        url: https://apibara.tech/mcp
-      - type: Documentation
-        url: https://apibara.tech/en/vehicle-auction-mcp-server
-      - type: Documentation
+      - type: APIReference
         url: https://apibara.tech/en/products/vehicle-auction-data-api/endpoints
+      - type: GettingStarted
+        url: https://apibara.tech/en/products/vehicle-auction-data-api/demo
+      - type: LLMsTxt
+        url: llms/apibara-tech-llms.txt
+      - type: LLMsTxt
+        name: Provider-hosted llms.txt
+        url: https://apibara.tech/llms.txt
+      - type: Documentation
+        name: MCP server guide
+        url: https://apibara.tech/en/vehicle-auction-mcp-server
 maintainers:
   - FN: Apibara.tech
+    email: admin@apibara.tech
     url: https://apibara.tech
-generated:
+common:
+  - type: Website
+    url: https://apibara.tech/en
+  - type: About
+    url: https://apibara.tech/en/about
+  - type: Documentation
+    url: https://apibara.tech/en/products/vehicle-auction-data-api/docs
+  - type: Pricing
+    url: https://apibara.tech/en/pricing
+  - type: SignUp
+    url: https://apibara.tech/en/register
+  - type: TermsOfService
+    url: https://apibara.tech/en/terms
+  - type: PrivacyPolicy
+    url: https://apibara.tech/en/privacy
+  - type: Support
+    url: https://apibara.tech/en/contact
+  - type: Security
+    url: https://apibara.tech/en/security
+  - type: StatusPage
+    url: https://apibara.tech/en/status
+  - type: ChangeLog
+    url: https://apibara.tech/en/changelog
+  - type: ChangeLog
+    name: Structured changelog
+    url: changelog/apibara-tech-changelog.yml
+  - type: LLMsTxt
+    url: https://apibara.tech/llms.txt
+  - type: WellKnown
+    url: well-known/apibara-tech-well-known.yml
+  - type: Conformance
+    url: conformance/apibara-tech-conformance.yml
+  - type: Conventions
+    url: conventions/apibara-tech-conventions.yml
+  - type: Lifecycle
+    url: lifecycle/apibara-tech-lifecycle.yml
+  - type: AgentSkill
+    url: skills/_index.yml
+  - type: Packages
+    url: packages/apibara-tech-packages.yml
+  - type: DomainSecurity
+    url: security/apibara-tech-domain-security.yml
+  - type: Authentication
+    url: authentication/apibara-tech-authentication.yml
+x-generated:
   by: apis.io/add
   model: claude-opus-4-8
   confidence: 97
   at: '2026-09-18T12:47:21.773Z'
+x-enrichment:
+  date: '2026-09-18'
+  status: enriched
+  artifacts_added: 24
+  pass: local-v3

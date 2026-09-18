@@ -1,0 +1,69 @@
+generated: '2026-09-18'
+method: searched
+source: >-
+  https://apibara.tech/mcp (live initialize + tools/list probe, 2026-09-18),
+  cross-referenced with https://apibara.tech/ai-facts.json and
+  https://apibara.tech/en/vehicle-auction-mcp-server
+name: Apibara Vehicle Auction MCP Server
+description: >-
+  Hosted, read-only remote MCP server exposing 8 tools mapped to the Apibara
+  Vehicle Auction Data API. Anonymous initialize and tools/list succeed; tool
+  CALLS require an X-API-Key. Protocol negotiated to 2025-11-25 on probe.
+deployment:
+  mode: remote
+  endpoint: https://apibara.tech/mcp
+  auth: api-key
+  verified: probed
+server:
+  name: apibara-vehicle-auction-data
+  version: 1.0.0
+  protocol_version: '2025-11-25'
+  registry_id: tech.apibara/vehicle-auction
+  registry_url: https://registry.modelcontextprotocol.io/?q=tech.apibara%2Fvehicle-auction
+  read_only: true
+  transport_note: >-
+    Streamable HTTP. The server requires an "Mcp-Method" request header whose
+    value matches the JSON-RPC "method" (e.g. Mcp-Method: tools/list) or it
+    returns error -32020 HeaderMismatch. tools/list is anonymous; tool calls
+    require the X-API-Key header.
+  instructions: >-
+    Read-only vehicle auction data tools. X-API-Key is required for tool calls.
+tools:
+  - name: search_auction_vehicles
+    title: Search auction vehicles
+    description: Search supported Copart and IAAI vehicle auction records.
+    inputs: [s, platform, lot_status, lot_sub_status, upcoming, updated_within_minutes, make, model, year_from, year_to, price_min, price_max, facility_id, loc_state, today_only, has_shipping_price, per_page, cursor]
+  - name: get_vehicle
+    title: Get vehicle
+    description: Retrieve one supported vehicle record by VIN or slug_vin.
+    inputs: [identifier]
+  - name: get_vehicle_history
+    title: Get vehicle history
+    description: Retrieve retained Copart + IAAI auction history for one supported vehicle.
+    inputs: [identifier]
+  - name: get_related_vehicles
+    title: Get related vehicles
+    description: Retrieve related supported auction vehicles.
+    inputs: [identifier, per_page]
+  - name: get_vehicle_filters
+    title: Get vehicle filters
+    description: Retrieve current supported filter metadata for search UIs and integrations.
+    inputs: [platform]
+  - name: list_auction_locations
+    title: List auction locations
+    description: Retrieve supported auction facilities and locations.
+    inputs: [platform, s, country, state]
+  - name: calculate_shipping
+    title: Calculate shipping
+    description: Retrieve supported auction-to-port shipping information by VIN or lot number.
+    inputs: [vin, lot_number, port, port_id]
+  - name: get_api_usage
+    title: Get API usage
+    description: Retrieve authenticated API usage and current plan limits for the supplied key.
+    inputs: []
+tool_count: 8
+x-evidence:
+  probed: '2026-09-18'
+  initialize_http_status: 200
+  tools_list_http_status: 200
+  auth_required_for_tool_calls: true

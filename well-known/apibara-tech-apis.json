@@ -1,0 +1,230 @@
+{
+    "aid": "apibara.tech",
+    "name": "Apibara.tech",
+    "type": "Index",
+    "kind": "company",
+    "description": "Independent developer platform for normalized Copart and IAA / IAAI vehicle auction data.",
+    "url": "https://apibara.tech/apis.json",
+    "created": "2026-06-01",
+    "modified": "2026-09-18",
+    "specificationVersion": "0.23",
+    "tags": [
+        "Vehicle Auction Data",
+        "Automotive",
+        "Copart",
+        "IAA",
+        "IAAI",
+        "OpenAPI",
+        "MCP",
+        "AI Agents"
+    ],
+    "maintainers": [
+        {
+            "FN": "Apibara.tech",
+            "email": "admin@apibara.tech",
+            "url": "https://apibara.tech/en"
+        }
+    ],
+    "apis": [
+        {
+            "aid": "apibara.tech:vehicle-auction-data-api",
+            "name": "Apibara Vehicle Auction Data API",
+            "description": "Normalized JSON API for supported Copart and IAA / IAAI current and retained vehicle-auction records.",
+            "humanURL": "https://apibara.tech/en/products/vehicle-auction-data-api",
+            "baseURL": "https://apibara.tech/api/v1/vehicle-auction",
+            "version": "1.1.0",
+            "tags": [
+                "Vehicle Auction API",
+                "Copart API",
+                "IAAI API",
+                "VIN",
+                "Auction History",
+                "Automotive Data"
+            ],
+            "properties": [
+                {
+                    "type": "OpenAPI",
+                    "name": "Canonical OpenAPI 3.1 contract",
+                    "url": "https://apibara.tech/openapi/v1.json"
+                },
+                {
+                    "type": "Documentation",
+                    "name": "API documentation",
+                    "url": "https://apibara.tech/en/products/vehicle-auction-data-api/docs"
+                },
+                {
+                    "type": "APIReference",
+                    "name": "Endpoint reference",
+                    "url": "https://apibara.tech/en/products/vehicle-auction-data-api/endpoints"
+                },
+                {
+                    "type": "GettingStarted",
+                    "name": "Public API demo",
+                    "url": "https://apibara.tech/en/products/vehicle-auction-data-api/demo"
+                },
+                {
+                    "type": "Pricing",
+                    "name": "Pricing",
+                    "url": "https://apibara.tech/en/pricing"
+                },
+                {
+                    "type": "SignUp",
+                    "name": "Create free account",
+                    "url": "https://apibara.tech/en/register"
+                },
+                {
+                    "type": "SDKs",
+                    "name": "SDK and code-generation resources",
+                    "url": "https://apibara.tech/en/vehicle-auction-api-sdks"
+                },
+                {
+                    "type": "LLMsTxt",
+                    "name": "LLM discovery",
+                    "url": "https://apibara.tech/llms.txt"
+                },
+                {
+                    "type": "AgenticAccess",
+                    "name": "AI product profile",
+                    "url": "https://apibara.tech/ai/vehicle-auction-data-api.md"
+                },
+                {
+                    "type": "AgenticAccess",
+                    "name": "AI agent integration guide",
+                    "url": "https://apibara.tech/en/vehicle-auction-mcp-server"
+                },
+                {
+                    "type": "MCPServer",
+                    "name": "Vehicle Auction MCP server",
+                    "url": "https://apibara.tech/mcp"
+                },
+                {
+                    "type": "PostmanCollection",
+                    "name": "Postman collection",
+                    "url": "https://apibara.tech/postman/apibara-vehicle-auction-api.postman_collection.json"
+                },
+                {
+                    "type": "StatusPage",
+                    "name": "Service status",
+                    "url": "https://apibara.tech/en/status"
+                },
+                {
+                    "type": "ChangeLog",
+                    "name": "Changelog",
+                    "url": "https://apibara.tech/en/changelog"
+                },
+                {
+                    "type": "Security",
+                    "name": "Security",
+                    "url": "https://apibara.tech/en/security"
+                },
+                {
+                    "type": "Support",
+                    "name": "Support policy",
+                    "url": "https://apibara.tech/en/support-policy"
+                }
+            ],
+            "workflows": [
+                {
+                    "type": "Arazzo",
+                    "name": "Incremental vehicle-auction synchronization",
+                    "url": "https://apibara.tech/ai/workflows/incremental-sync.arazzo.yaml"
+                },
+                {
+                    "type": "Arazzo",
+                    "name": "VIN auction research",
+                    "url": "https://apibara.tech/ai/workflows/vin-research.arazzo.yaml"
+                }
+            ],
+            "prompts": [
+                {
+                    "type": "AgentPrompt",
+                    "name": "Vehicle auction API agent prompt",
+                    "url": "https://apibara.tech/ai/prompts/vehicle-auction-agent.md"
+                }
+            ],
+            "rules": [
+                {
+                    "type": "Rules",
+                    "name": "Vehicle auction agent rules",
+                    "url": "https://apibara.tech/ai/rules/vehicle-auction-agent-rules.md"
+                }
+            ]
+        }
+    ],
+    "common": [
+        {
+            "type": "Website",
+            "url": "https://apibara.tech/en"
+        },
+        {
+            "type": "About",
+            "url": "https://apibara.tech/en/about"
+        },
+        {
+            "type": "SignUp",
+            "url": "https://apibara.tech/en/register"
+        },
+        {
+            "type": "Authentication",
+            "url": "https://apibara.tech/en/products/vehicle-auction-data-api/docs"
+        },
+        {
+            "type": "Pricing",
+            "url": "https://apibara.tech/en/pricing"
+        },
+        {
+            "type": "TermsOfService",
+            "url": "https://apibara.tech/en/terms"
+        },
+        {
+            "type": "PrivacyPolicy",
+            "url": "https://apibara.tech/en/privacy"
+        },
+        {
+            "type": "Support",
+            "url": "https://apibara.tech/en/contact"
+        },
+        {
+            "type": "StatusPage",
+            "url": "https://apibara.tech/en/status"
+        },
+        {
+            "type": "ChangeLog",
+            "url": "https://apibara.tech/en/changelog"
+        },
+        {
+            "type": "LLMsTxt",
+            "url": "https://apibara.tech/llms.txt"
+        },
+        {
+            "type": "MCPServer",
+            "url": "https://apibara.tech/mcp"
+        }
+    ],
+    "workflows": [
+        {
+            "type": "Arazzo",
+            "name": "Incremental vehicle-auction synchronization",
+            "url": "https://apibara.tech/ai/workflows/incremental-sync.arazzo.yaml"
+        },
+        {
+            "type": "Arazzo",
+            "name": "VIN auction research",
+            "url": "https://apibara.tech/ai/workflows/vin-research.arazzo.yaml"
+        }
+    ],
+    "prompts": [
+        {
+            "type": "AgentPrompt",
+            "name": "Vehicle auction API agent prompt",
+            "url": "https://apibara.tech/ai/prompts/vehicle-auction-agent.md"
+        }
+    ],
+    "rules": [
+        {
+            "type": "Rules",
+            "name": "Vehicle auction agent rules",
+            "url": "https://apibara.tech/ai/rules/vehicle-auction-agent-rules.md"
+        }
+    ]
+}

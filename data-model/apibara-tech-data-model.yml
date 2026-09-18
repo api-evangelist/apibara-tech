@@ -1,0 +1,49 @@
+generated: '2026-09-18'
+method: derived
+source: openapi/apibara-tech-openapi.json (components.schemas $ref graph)
+note: >-
+  Entity-relationship graph derived from OpenAPI schema composition. Vehicle is
+  the hub entity, composed of four value objects (auction, pricing, location,
+  media). List responses page via a shared CursorMeta. Identity is by
+  vin/lot_number/slug_vin; there are no cross-entity foreign-key id references
+  beyond facility_id linking a vehicle's location to an AuctionLocation facility.
+entities:
+  - name: Vehicle
+    identity: [vin, lot_number, slug_vin]
+    key_fields: [platform, title, year, make, model, type, color, odometer, damage]
+  - name: AuctionInfo
+    key_fields: [state, auction_at, lot_status, lot_sub_status]
+  - name: PricingInfo
+    key_fields: [current_bid_usd, buy_now_usd, sale_price_usd]
+  - name: VehicleLocation
+    key_fields: [display, state, facility_id]
+  - name: MediaInfo
+    key_fields: [thumbs_count, has_360, photos]
+  - name: AuctionLocation
+    identity: [facility_id]
+    key_fields: [platform, name, city, state, zip, latitude, longitude]
+  - name: ShippingPrice
+    key_fields: [port, price, currency]
+  - name: CursorMeta
+    key_fields: [per_page, next_cursor, prev_cursor]
+relationships:
+  - from: Vehicle
+    type: has_one
+    to: AuctionInfo
+    via: auction
+  - from: Vehicle
+    type: has_one
+    to: PricingInfo
+    via: pricing
+  - from: Vehicle
+    type: has_one
+    to: VehicleLocation
+    via: location
+  - from: Vehicle
+    type: has_one
+    to: MediaInfo
+    via: media
+  - from: VehicleLocation
+    type: belongs_to
+    to: AuctionLocation
+    via: facility_id

@@ -1,0 +1,32 @@
+generated: '2026-09-18'
+method: probed
+source: Live probes of /.well-known/* on apibara.tech, 2026-09-18
+note: >-
+  Only /.well-known/apis.json returns a real 200 document (an APIs.json
+  discovery index). All OAuth/OIDC/security.txt/api-catalog/ai-plugin/agent-card
+  paths return 404. The provider is API-key based (no OAuth), so the absence of
+  the OAuth/OIDC discovery docs is expected. WellKnown pointer emitted on the
+  strength of the served apis.json only.
+hosts:
+  - host: apibara.tech
+    documents:
+      - path: /.well-known/apis.json
+        status: 200
+        content_type: application/json
+        file: well-known/apibara-tech-apis.json
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+      - path: /.well-known/oauth-protected-resource
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/ai-plugin.json
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404

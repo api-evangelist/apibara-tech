@@ -1,0 +1,76 @@
+generated: '2026-09-18'
+method: derived
+source: >-
+  Bound live MCP tools/list (https://apibara.tech/mcp, probed 2026-09-18) to
+  operationIds in openapi/apibara-tech-openapi.json.
+note: >-
+  MCP tool inputSchemas were read live and map cleanly onto REST query/path
+  parameters. Each tool inherits the parameters of its backing operation as its
+  real inputSchema. High confidence throughout; the only nuance is
+  calculate_shipping, which the MCP schema binds to the standalone
+  auction-to-port shipping operation (vin/lot_number/port), not the
+  per-vehicle shipping subresource.
+surfaces:
+  openapi: openapi/apibara-tech-openapi.json
+  mcp: https://apibara.tech/mcp
+  mcp_gated: false
+  mcp_note: tools/list anonymous; tool CALLS require X-API-Key.
+crosswalk:
+  - tool: search_auction_vehicles
+    category: search
+    rest: [listAuctionVehicles]
+    binding: GET /vehicles
+    confidence: high
+  - tool: get_vehicle
+    category: read
+    rest: [getVehicleDetails]
+    binding: GET /vehicles/{slugVin}
+    confidence: high
+  - tool: get_vehicle_history
+    category: read
+    rest: [getVehicleHistory]
+    binding: GET /vehicles/{slugVin}/history
+    confidence: high
+  - tool: get_related_vehicles
+    category: read
+    rest: [getRelatedVehicles]
+    binding: GET /vehicles/{slugVin}/related
+    confidence: high
+  - tool: get_vehicle_filters
+    category: metadata
+    rest: [getVehicleFilters]
+    binding: GET /vehicles/filters
+    confidence: high
+  - tool: list_auction_locations
+    category: read
+    rest: [listAuctionLocations]
+    binding: GET /locations
+    confidence: high
+  - tool: calculate_shipping
+    category: compute
+    rest: [getAuctionToPortShipping]
+    binding: GET /shipping/auction-to-port
+    confidence: high
+    note: >-
+      MCP inputs (vin, lot_number, port, port_id) match the auction-to-port
+      operation. The per-vehicle GET /vehicles/{slugVin}/shipping operation is a
+      REST-only sibling not exposed as its own tool.
+  - tool: get_api_usage
+    category: account
+    rest: [getApiUsage]
+    binding: GET /usage
+    confidence: high
+mcp_only: []
+rest_only:
+  - operationId: getVehicleShipping
+    reason: Per-vehicle shipping subresource; auction-to-port shipping is the tool-exposed variant.
+  - operationId: getVehicleDetailsFromUrl
+    reason: URL-to-details helper (paste an auction URL); no dedicated MCP tool.
+  - operationId: proxyAuctionImage
+    reason: Binary image proxy; not exposed as an MCP tool.
+coverage:
+  openapi_operations: 11
+  mcp_tools: 8
+  tools_mapped_to_rest: 8
+  rest_operations_with_tool: 8
+  rest_only: 3

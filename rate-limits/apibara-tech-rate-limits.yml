@@ -1,0 +1,73 @@
+generated: '2026-09-18'
+method: searched
+source: >-
+  https://apibara.tech/en/pricing (per-plan rates) and
+  openapi/apibara-tech-openapi.json (response headers + 429 semantics)
+note: >-
+  Per-second rate and burst are set by plan (see plans artifact). Monthly request
+  quota is also enforced per plan. The OpenAPI contract declares the runtime
+  signalling headers below on every response, even though the prose docs do not
+  enumerate them. HTTP 429 is returned on rate/quota exhaustion and is
+  explicitly NOT counted as downtime by the provider.
+limit_count: 8
+exhaustion_status: 429
+response_headers:
+  rate_limit:
+    - X-RateLimit-Limit
+    - X-RateLimit-Remaining
+    - Retry-After
+  quota_subscription:
+    - X-Subscription-Limit
+    - X-Subscription-Base-Limit
+    - X-Subscription-Extra-Limit
+    - X-Subscription-Used
+    - X-Subscription-Remaining
+    - X-Subscription-Period-Start
+    - X-Subscription-Period-End
+  pagination:
+    - X-Per-Page-Limit
+limits:
+  - scope: per-key
+    window: 1s
+    plan: Test
+    limit: 3
+    burst: 3
+  - scope: per-key
+    window: 1s
+    plan: Basic
+    limit: 10
+    burst: 40
+  - scope: per-key
+    window: 1s
+    plan: Power
+    limit: 30
+    burst: 40
+  - scope: per-key
+    window: 1s
+    plan: Pro
+    limit: 40
+    burst: 40
+  - scope: per-key
+    window: 1s
+    plan: Pro+
+    limit: 45
+    burst: 45
+  - scope: per-key
+    window: 1s
+    plan: Pro max
+    limit: 50
+    burst: 50
+  - scope: per-key
+    window: 1s
+    plan: Mega
+    limit: 80
+    burst: 80
+  - scope: per-key
+    window: 1s
+    plan: Mega max
+    limit: 100
+    burst: 100
+  - scope: per-key
+    window: monthly
+    plan: (varies)
+    limit: '100 to 2,000,000 requests/month depending on plan'

@@ -1,0 +1,56 @@
+generated: '2026-09-18'
+method: searched
+source: https://apibara.tech/en/pricing
+currency: USD
+billing_period: monthly
+free_tier: true
+payment_card_required_for_free: false
+note: >-
+  Self-serve, published pricing. One plan covers both Copart and IAAI through the
+  same API. Request limits count API calls, not individual records inside a
+  paginated response. per_page maximum for vehicle search varies by plan
+  (20/30/40). Rate limits and quotas are also surfaced on live responses via
+  X-RateLimit-* and X-Subscription-* headers.
+plan_count: 8
+plans:
+  - name: Test
+    price: 0
+    requests_per_month: 100
+    rate_limit_per_sec: 3
+    burst: 3
+    note: Free tier, no payment card required.
+  - name: Basic
+    price: 25
+    requests_per_month: 30000
+    rate_limit_per_sec: 10
+    burst: 40
+  - name: Power
+    price: 50
+    requests_per_month: 60000
+    rate_limit_per_sec: 30
+    burst: 40
+  - name: Pro
+    price: 70
+    requests_per_month: 100000
+    rate_limit_per_sec: 40
+    burst: 40
+  - name: Pro+
+    price: 90
+    requests_per_month: 300000
+    rate_limit_per_sec: 45
+    burst: 45
+  - name: Pro max
+    price: 110
+    requests_per_month: 600000
+    rate_limit_per_sec: 50
+    burst: 50
+  - name: Mega
+    price: 125
+    requests_per_month: 1000000
+    rate_limit_per_sec: 80
+    burst: 80
+  - name: Mega max
+    price: 195
+    requests_per_month: 2000000
+    rate_limit_per_sec: 100
+    burst: 100

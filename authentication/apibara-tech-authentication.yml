@@ -1,0 +1,16 @@
+generated: '2026-09-18'
+method: derived
+source: openapi/apibara-tech-openapi.json
+summary:
+  types:
+  - apiKey
+  api_key_in:
+  - header
+schemes:
+- name: ApiKeyAuth
+  type: apiKey
+  in: header
+  parameter: X-API-Key
+  description: Apibara API key.
+  sources:
+  - openapi/apibara-tech-openapi.json

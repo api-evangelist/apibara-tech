@@ -1,0 +1,41 @@
+generated: '2026-09-18'
+method: derived
+source: >-
+  openapi/apibara-tech-openapi.json (components.responses + per-operation 4xx/5xx)
+  enriched from https://apibara.tech/en/products/vehicle-auction-data-api/docs
+format: custom-json
+envelope: '{ "ok": false, "status": <code>, "message": "<text>", "errors": { "<field>": ["<message>"] } }'
+media_type: application/json
+note: >-
+  Not RFC 9457 (no application/problem+json). Errors return the custom ApiError
+  envelope. Field-level validation detail appears under `errors`. Interpretation
+  rule from the provider: a client 4xx (and 429) is NOT server downtime.
+problem_types:
+  - status: 400
+    title: Bad Request
+    remediation: Fix malformed request parameters.
+  - status: 401
+    title: Unauthorized
+    remediation: Supply a valid X-API-Key header.
+  - status: 403
+    title: Forbidden
+    remediation: The key lacks access to the requested resource or plan feature.
+  - status: 404
+    title: Not Found
+    remediation: The vehicle/lot/resource does not exist or is not supported.
+  - status: 422
+    title: Validation Error
+    remediation: >-
+      One or more parameters failed validation; inspect the `errors` map
+      (e.g. "The per page field must not be greater than 20.").
+  - status: 429
+    title: Rate/Quota Limited
+    remediation: >-
+      Rate limit or monthly quota reached. Honor Retry-After; check
+      X-Subscription-Remaining. Not a server outage.
+  - status: 500
+    title: Server Error
+    remediation: Transient server-side error; retry with backoff.
+  - status: 503
+    title: Service Unavailable
+    remediation: Service temporarily unavailable; retry with backoff.

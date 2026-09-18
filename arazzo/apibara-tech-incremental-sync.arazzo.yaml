@@ -1,0 +1,38 @@
+arazzo: 1.1.0
+$self: https://apibara.tech/ai/workflows/incremental-sync.arazzo.yaml
+info:
+  title: Apibara incremental vehicle-auction synchronization
+  summary: Retrieve recently updated Copart and IAAI auction records with cursor pagination.
+  version: 1.1.0
+sourceDescriptions:
+  - name: vehicleAuctionApi
+    url: https://apibara.tech/openapi/v1.json
+    type: openapi
+workflows:
+  - workflowId: incrementalVehicleSync
+    summary: Fetch a window of recently updated vehicle-auction records.
+    description: Use updated_within_minutes for the change window, then follow next_cursor until exhausted. Use a small overlap between scheduled windows and idempotent upserts.
+    inputs:
+      type: object
+      required: [apiKey, minutes]
+      properties:
+        apiKey:
+          type: string
+        minutes:
+          type: integer
+          minimum: 1
+          maximum: 525600
+    steps:
+      - stepId: searchRecentUpdates
+        operationPath: '{$sourceDescriptions.vehicleAuctionApi.url}#/paths/~1vehicles/get'
+        parameters:
+          - name: X-API-Key
+            in: header
+            value: $inputs.apiKey
+          - name: updated_within_minutes
+            in: query
+            value: $inputs.minutes
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          response: $response.body

@@ -1,0 +1,17 @@
+generated: '2026-09-18'
+method: searched
+source: >-
+  https://apibara.tech/en/vehicle-auction-api-sdks and the provider's own
+  apis.json / llms.txt. Registry searches (npm, PyPI) for "apibara".
+note: >-
+  No first-party, officially published client SDK or library exists. The
+  provider's SDK page offers OpenAPI 3.1 code-generation guidance only:
+  "Use an OpenAPI 3.1-compatible generator against the versioned schema" and
+  recommends third-party HTTP clients (PHP Guzzle/Laravel HTTP, Python
+  httpx/requests, TypeScript fetch or an OpenAPI-generated client). No npm/PyPI/
+  Maven/NuGet/Go/RubyGems/Packagist/crates package is published by Apibara.
+  A hosted read-only MCP server (mcp/) is the only turnkey client surface.
+  NOTE: apibara.com's blockchain-indexer packages (e.g. @apibara/*) are a
+  DIFFERENT company and are deliberately excluded.
+packages: []
+package_count: 0

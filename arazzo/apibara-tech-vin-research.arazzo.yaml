@@ -1,0 +1,48 @@
+arazzo: 1.1.0
+$self: https://apibara.tech/ai/workflows/vin-research.arazzo.yaml
+info:
+  title: Apibara VIN auction research
+  summary: Retrieve a supported vehicle record and then its retained auction history.
+  version: 1.1.0
+sourceDescriptions:
+  - name: vehicleAuctionApi
+    url: https://apibara.tech/openapi/v1.json
+    type: openapi
+workflows:
+  - workflowId: vinAuctionResearch
+    summary: Get vehicle details and retained auction history for a supported slug/VIN.
+    inputs:
+      type: object
+      required: [apiKey, slugVin]
+      properties:
+        apiKey:
+          type: string
+        slugVin:
+          type: string
+    steps:
+      - stepId: getVehicle
+        operationPath: '{$sourceDescriptions.vehicleAuctionApi.url}#/paths/~1vehicles~1{slugVin}/get'
+        parameters:
+          - name: X-API-Key
+            in: header
+            value: $inputs.apiKey
+          - name: slugVin
+            in: path
+            value: $inputs.slugVin
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          vehicle: $response.body
+      - stepId: getHistory
+        operationPath: '{$sourceDescriptions.vehicleAuctionApi.url}#/paths/~1vehicles~1{slugVin}~1history/get'
+        parameters:
+          - name: X-API-Key
+            in: header
+            value: $inputs.apiKey
+          - name: slugVin
+            in: path
+            value: $inputs.slugVin
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          history: $response.body

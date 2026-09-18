@@ -1,0 +1,18 @@
+generated: '2026-09-18'
+method: generated
+source: >-
+  Grounded in openapi/apibara-tech-openapi.json and the two provider-published
+  Arazzo workflows. The provider also publishes an agent prompt and agent rules
+  (referenced below) which informed the skill rules.
+api: Apibara Vehicle Auction Data API
+provider_agent_guidance:
+  agent_prompt: https://apibara.tech/ai/prompts/vehicle-auction-agent.md
+  agent_rules: https://apibara.tech/ai/rules/vehicle-auction-agent-rules.md
+  ai_product_profile: https://apibara.tech/ai/vehicle-auction-data-api.md
+skills:
+  - name: apibara-incremental-vehicle-sync
+    file: apibara-tech-incremental-sync.md
+    operations: [listAuctionVehicles]
+  - name: apibara-vin-auction-research
+    file: apibara-tech-vin-research.md
+    operations: [getVehicleDetails, getVehicleHistory, getRelatedVehicles, getAuctionToPortShipping]

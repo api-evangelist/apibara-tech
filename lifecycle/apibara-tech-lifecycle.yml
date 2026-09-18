@@ -1,0 +1,37 @@
+generated: '2026-09-18'
+method: searched
+source: >-
+  https://apibara.tech/en/status, https://apibara.tech/status.json,
+  https://apibara.tech/en/changelog, https://apibara.tech/en/support-policy,
+  openapi/apibara-tech-openapi.json
+versioning:
+  scheme: contract-version + /api/v1 path
+  current_contract_version: 1.1.0
+  authority: OpenAPI at https://apibara.tech/openapi/v1.json
+deprecation:
+  policy_documented: false
+  sunset_header: false
+  deprecation_header: false
+  deprecated_operations: []
+  note: >-
+    No formal deprecation policy or RFC 8594 Sunset/Deprecation headers found;
+    no operations are marked deprecated in the contract.
+status_page:
+  url: https://apibara.tech/en/status
+  machine_readable: https://apibara.tech/status.json
+  history: https://apibara.tech/status-history.json
+  current_status: operational
+  availability_24h_percent: 99.981
+  availability_7d_percent: 99.784
+  availability_30d_percent: 99.288
+  p50_latency_ms_24h: 200
+  p95_latency_ms_24h: 500
+  p99_latency_ms_24h: 750
+  server_error_rate_24h_percent: 0.019
+  measured_at: '2026-09-18T20:05:23+00:00'
+support:
+  policy_url: https://apibara.tech/en/support-policy
+  contact_url: https://apibara.tech/en/contact
+sla:
+  documented: false
+  note: Production telemetry is published, but no contractual SLA/uptime commitment was found.
