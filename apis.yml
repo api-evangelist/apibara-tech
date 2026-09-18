@@ -1,8 +1,9 @@
 name: Apibara.tech
 description: >-
-  Developer platform offering a normalized JSON API over Copart and IAA/IAAI vehicle auction records — current
-  inventory, retained auction/sale history, VIN and lot details, pricing, auction status, locations, shipping estimates,
-  and source-provided media. Not affiliated with the blockchain indexer at apibara.com.
+  Independent developer platform providing structured vehicle auction data (normalized JSON for Copart and IAA/IAAI
+  current and historical auction records), including vehicle search, VIN/lot details, photos, prices, sale history,
+  filter metadata, auction locations, shipping calculation, and an image proxy. Offers both a REST/JSON API and a hosted
+  read-only MCP server. Not affiliated with the similarly named apibara.com blockchain indexer.
 url: https://raw.githubusercontent.com/api-evangelist/apibara-tech/refs/heads/main/apis.yml
 created: '2026-09-18'
 modified: '2026-09-18'
@@ -15,12 +16,26 @@ tags:
   - vin-history
   - marketplace
   - rest-api
+  - Automotive
+  - Vehicle Auctions
+  - Salvage Auctions
+  - Copart
+  - IAAI
+  - VIN Data
+  - Used-Car Marketplace Data
+  - Data Infrastructure
+  - Data-as-a-Service
+  - REST
+  - JSON API
+  - MCP
+  - Agent-Native
 apis:
   - name: Vehicle Auction Data API
     description: >-
-      REST/JSON API over Copart & IAAI vehicle auction data with API-key auth. Endpoint groups include Vehicles, Vehicle
-      History, Related Vehicles, Filters, Locations, Shipping, URL Tools, Usage, and Image Proxy. Also exposes a hosted
-      read-only MCP server and llms.txt for agents.
+      REST/JSON API providing normalized Copart & IAAI vehicle auction data: vehicle search, VIN/lot details, vehicle
+      history, related vehicles, filters, auction locations, shipping calculation, URL tools, usage, and image proxy.
+      Authenticated via X-API-Key header with cursor-based pagination. A hosted read-only MCP server exposes 8 agent
+      tools mapped to this API.
     humanURL: https://apibara.tech/en/products/vehicle-auction-data-api
     baseURL: https://apibara.tech/api/v1/vehicle-auction
     tags:
@@ -31,6 +46,19 @@ apis:
       - vin-history
       - marketplace
       - rest-api
+      - Automotive
+      - Vehicle Auctions
+      - Salvage Auctions
+      - Copart
+      - IAAI
+      - VIN Data
+      - Used-Car Marketplace Data
+      - Data Infrastructure
+      - Data-as-a-Service
+      - REST
+      - JSON API
+      - MCP
+      - Agent-Native
     properties:
       - type: OpenAPI
         url: https://apibara.tech/openapi/v1.json
@@ -48,11 +76,13 @@ apis:
         url: https://apibara.tech/mcp
       - type: Documentation
         url: https://apibara.tech/en/vehicle-auction-mcp-server
+      - type: Documentation
+        url: https://apibara.tech/en/products/vehicle-auction-data-api/endpoints
 maintainers:
   - FN: Apibara.tech
     url: https://apibara.tech
 generated:
   by: apis.io/add
   model: claude-opus-4-8
-  confidence: 98
-  at: '2026-09-18T12:46:55.513Z'
+  confidence: 97
+  at: '2026-09-18T12:47:21.773Z'
