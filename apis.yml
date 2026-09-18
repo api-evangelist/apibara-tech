@@ -1,0 +1,58 @@
+name: Apibara.tech
+description: >-
+  Developer platform offering a normalized JSON API over Copart and IAA/IAAI vehicle auction records — current
+  inventory, retained auction/sale history, VIN and lot details, pricing, auction status, locations, shipping estimates,
+  and source-provided media. Not affiliated with the blockchain indexer at apibara.com.
+url: https://raw.githubusercontent.com/api-evangelist/apibara-tech/refs/heads/main/apis.yml
+created: '2026-09-18'
+modified: '2026-09-18'
+specificationVersion: '0.21'
+tags:
+  - automotive
+  - vehicle-auction-data
+  - copart
+  - iaai
+  - vin-history
+  - marketplace
+  - rest-api
+apis:
+  - name: Vehicle Auction Data API
+    description: >-
+      REST/JSON API over Copart & IAAI vehicle auction data with API-key auth. Endpoint groups include Vehicles, Vehicle
+      History, Related Vehicles, Filters, Locations, Shipping, URL Tools, Usage, and Image Proxy. Also exposes a hosted
+      read-only MCP server and llms.txt for agents.
+    humanURL: https://apibara.tech/en/products/vehicle-auction-data-api
+    baseURL: https://apibara.tech/api/v1/vehicle-auction
+    tags:
+      - automotive
+      - vehicle-auction-data
+      - copart
+      - iaai
+      - vin-history
+      - marketplace
+      - rest-api
+    properties:
+      - type: OpenAPI
+        url: https://apibara.tech/openapi/v1.json
+      - type: OpenAPI
+        url: https://apibara.tech/openapi/vehicle-auction-data-api.json
+      - type: PostmanCollection
+        url: https://apibara.tech/postman/apibara-vehicle-auction-api.postman_collection.json
+      - type: Documentation
+        url: https://apibara.tech/en/products/vehicle-auction-data-api/docs
+      - type: LLMsTxt
+        url: https://apibara.tech/llms.txt
+      - type: LLMsTxt
+        url: https://apibara.tech/llms-full.txt
+      - type: MCPServer
+        url: https://apibara.tech/mcp
+      - type: Documentation
+        url: https://apibara.tech/en/vehicle-auction-mcp-server
+maintainers:
+  - FN: Apibara.tech
+    url: https://apibara.tech
+generated:
+  by: apis.io/add
+  model: claude-opus-4-8
+  confidence: 98
+  at: '2026-09-18T12:46:55.513Z'
