@@ -10,6 +10,24 @@ created: '2026-09-18'
 modified: '2026-09-18'
 specificationVersion: '0.21'
 tags:
+  - Automotive
+  - vehicle-auction-data
+  - Copart
+  - IAAI
+  - vin-history
+  - Marketplace
+  - REST API
+  - Vehicle Auctions
+  - Salvage Auctions
+  - VIN Data
+  - Used-Car Marketplace Data
+  - Data Infrastructure
+  - Data as a Service
+  - REST
+  - JSON:API
+  - MCP
+  - agent-native
+tags_raw:
   - automotive
   - vehicle-auction-data
   - copart
@@ -41,6 +59,24 @@ apis:
     baseURL: https://apibara.tech/api/v1/vehicle-auction
     image: https://apibara.tech/seo/1783599358_p64LSzUP.png
     tags:
+      - Automotive
+      - vehicle-auction-data
+      - Copart
+      - IAAI
+      - vin-history
+      - Marketplace
+      - REST API
+      - Vehicle Auctions
+      - Salvage Auctions
+      - VIN Data
+      - Used-Car Marketplace Data
+      - Data Infrastructure
+      - Data as a Service
+      - REST
+      - JSON:API
+      - MCP
+      - agent-native
+    tags_raw:
       - automotive
       - vehicle-auction-data
       - copart
