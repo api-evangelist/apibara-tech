@@ -1,0 +1,27 @@
+{
+  "provider": "apibara-tech",
+  "sources": [
+    "apibara-tech-openapi.json"
+  ],
+  "outputs": [
+    "apibara-tech-filters-api-openapi.yml",
+    "apibara-tech-image-proxy-api-openapi.yml",
+    "apibara-tech-locations-api-openapi.yml",
+    "apibara-tech-related-vehicles-api-openapi.yml",
+    "apibara-tech-shipping-api-openapi.yml",
+    "apibara-tech-url-tools-api-openapi.yml",
+    "apibara-tech-usage-api-openapi.yml",
+    "apibara-tech-vehicle-history-api-openapi.yml",
+    "apibara-tech-vehicles-api-openapi.yml"
+  ],
+  "archived": [
+    "archived openapi/apibara-tech-openapi.json"
+  ],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "apibara-tech-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "apis.yml register: written (+9 apis, 9 total)"
+  ],
+  "skipped": []
+}
