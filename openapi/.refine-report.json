@@ -1,7 +1,7 @@
 {
   "provider": "apibara-tech",
   "sources": [
-    "apibara-tech-openapi.json"
+    "_original/apibara-tech-openapi.json"
   ],
   "outputs": [
     "apibara-tech-filters-api-openapi.yml",
@@ -14,14 +14,23 @@
     "apibara-tech-vehicle-history-api-openapi.yml",
     "apibara-tech-vehicles-api-openapi.yml"
   ],
-  "archived": [
-    "archived openapi/apibara-tech-openapi.json"
-  ],
+  "archived": [],
   "errors": [],
   "warnings": [],
   "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
     "apibara-tech-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
-    "apis.yml register: written (+9 apis, 9 total)"
+    "apis.yml register: already-registered"
   ],
-  "skipped": []
+  "skipped": [
+    "apibara-tech-filters-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "apibara-tech-image-proxy-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "apibara-tech-locations-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "apibara-tech-related-vehicles-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "apibara-tech-shipping-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "apibara-tech-url-tools-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "apibara-tech-usage-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "apibara-tech-vehicle-history-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "apibara-tech-vehicles-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }
