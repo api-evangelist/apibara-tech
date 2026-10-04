@@ -215,6 +215,14 @@ paths:
         source: "const response = await fetch(\"https://apibara.tech/api/v1/vehicle-auction/vehicles/filters\", {\n  method: \"GET\",\n  headers: {\n    Accept: \"application/json\",\n    \"X-API-Key\": process.env.APIBARA_API_KEY,\n  },\n});\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconsole.log(await response.json());"
 components:
   schemas:
+    FiltersResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        data:
+          type: object
+          description: Available filter values grouped by filter name.
+          additionalProperties: true
     ApiError:
       type: object
       additionalProperties: true
@@ -238,37 +246,17 @@ components:
           - object
           - array
           - 'null'
-    FiltersResponse:
-      type: object
-      additionalProperties: true
-      properties:
-        data:
-          type: object
-          description: Available filter values grouped by filter name.
-          additionalProperties: true
   headers:
-    SubscriptionExtraLimit:
-      description: Additional request allowance applied to the active period.
+    SubscriptionUsed:
+      description: Requests consumed in the active subscription period.
       schema:
         type: integer
     SubscriptionBaseLimit:
       description: Base subscription request allowance for the active period.
       schema:
         type: integer
-    RateLimitLimit:
-      description: Current short-window request limit when rate limiting applies.
-      schema:
-        type: integer
-    PerPageLimit:
-      description: Effective maximum page size for the authenticated plan/workflow.
-      schema:
-        type: integer
-    SubscriptionRemaining:
-      description: Requests remaining in the active subscription period.
-      schema:
-        type: integer
-    SubscriptionUsed:
-      description: Requests consumed in the active subscription period.
+    SubscriptionLimit:
+      description: Total subscription request allowance for the active period.
       schema:
         type: integer
     SubscriptionPeriodStart:
@@ -276,20 +264,59 @@ components:
       schema:
         type: string
         format: date-time
-    SubscriptionLimit:
-      description: Total subscription request allowance for the active period.
-      schema:
-        type: integer
     SubscriptionPeriodEnd:
       description: End of the active subscription quota period.
       schema:
         type: string
         format: date-time
+    RateLimitLimit:
+      description: Current short-window request limit when rate limiting applies.
+      schema:
+        type: integer
+    SubscriptionRemaining:
+      description: Requests remaining in the active subscription period.
+      schema:
+        type: integer
+    SubscriptionExtraLimit:
+      description: Additional request allowance applied to the active period.
+      schema:
+        type: integer
+    PerPageLimit:
+      description: Effective maximum page size for the authenticated plan/workflow.
+      schema:
+        type: integer
     RateLimitRemaining:
       description: Remaining requests in the current short-window rate-limit bucket.
       schema:
         type: integer
   responses:
+    ServiceUnavailable:
+      description: The service or an upstream dependency is temporarily unavailable.
+      headers:
+        X-RateLimit-Limit:
+          $ref: '#/components/headers/RateLimitLimit'
+        X-RateLimit-Remaining:
+          $ref: '#/components/headers/RateLimitRemaining'
+        X-Subscription-Limit:
+          $ref: '#/components/headers/SubscriptionLimit'
+        X-Subscription-Base-Limit:
+          $ref: '#/components/headers/SubscriptionBaseLimit'
+        X-Subscription-Extra-Limit:
+          $ref: '#/components/headers/SubscriptionExtraLimit'
+        X-Subscription-Used:
+          $ref: '#/components/headers/SubscriptionUsed'
+        X-Subscription-Remaining:
+          $ref: '#/components/headers/SubscriptionRemaining'
+        X-Subscription-Period-Start:
+          $ref: '#/components/headers/SubscriptionPeriodStart'
+        X-Subscription-Period-End:
+          $ref: '#/components/headers/SubscriptionPeriodEnd'
+        X-Per-Page-Limit:
+          $ref: '#/components/headers/PerPageLimit'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
     ValidationError:
       description: Request parameters failed validation.
       headers:
@@ -319,33 +346,6 @@ components:
             $ref: '#/components/schemas/ApiError'
     Forbidden:
       description: The authenticated key/plan is not allowed to perform this request.
-      headers:
-        X-RateLimit-Limit:
-          $ref: '#/components/headers/RateLimitLimit'
-        X-RateLimit-Remaining:
-          $ref: '#/components/headers/RateLimitRemaining'
-        X-Subscription-Limit:
-          $ref: '#/components/headers/SubscriptionLimit'
-        X-Subscription-Base-Limit:
-          $ref: '#/components/headers/SubscriptionBaseLimit'
-        X-Subscription-Extra-Limit:
-          $ref: '#/components/headers/SubscriptionExtraLimit'
-        X-Subscription-Used:
-          $ref: '#/components/headers/SubscriptionUsed'
-        X-Subscription-Remaining:
-          $ref: '#/components/headers/SubscriptionRemaining'
-        X-Subscription-Period-Start:
-          $ref: '#/components/headers/SubscriptionPeriodStart'
-        X-Subscription-Period-End:
-          $ref: '#/components/headers/SubscriptionPeriodEnd'
-        X-Per-Page-Limit:
-          $ref: '#/components/headers/PerPageLimit'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiError'
-    ServiceUnavailable:
-      description: The service or an upstream dependency is temporarily unavailable.
       headers:
         X-RateLimit-Limit:
           $ref: '#/components/headers/RateLimitLimit'

@@ -835,29 +835,6 @@ components:
           - number
           - 'null'
       additionalProperties: true
-    ApiError:
-      type: object
-      additionalProperties: true
-      properties:
-        ok:
-          type:
-          - boolean
-          - 'null'
-        message:
-          type:
-          - string
-          - 'null'
-        error:
-          type:
-          - string
-          - object
-          - array
-          - 'null'
-        errors:
-          type:
-          - object
-          - array
-          - 'null'
     VehicleLocation:
       type: object
       properties:
@@ -883,6 +860,50 @@ components:
       required:
       - data
       - meta
+    MediaInfo:
+      type: object
+      properties:
+        thumbs_count:
+          type: integer
+          example: 17
+        has_360:
+          type: boolean
+          example: true
+        photos:
+          type: array
+          items:
+            type: string
+            format: uri
+      additionalProperties: true
+    VehicleDetailsResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Vehicle'
+    CursorMeta:
+      type: object
+      properties:
+        per_page:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 20
+        next_cursor:
+          type:
+          - string
+          - 'null'
+          example: eyJ2ZWhpY2xlcy5hZCI6IjIwMjYtMDctMTMgMTY6MzA6MDAiLCJ2ZWhpY2xlcy51cGRhdGVkX2F0IjoiMjAyNi0wNy0xMSAwODowOToyOSIsIl9wb2ludHNUb05leHRJdGVtcyI6dHJ1ZX0
+        prev_cursor:
+          type:
+          - string
+          - 'null'
+          example: null
+      additionalProperties: true
+      description: Cursor pagination metadata.
+      required:
+      - per_page
+      - next_cursor
+      - prev_cursor
     AuctionInfo:
       type: object
       properties:
@@ -900,21 +921,29 @@ components:
           type: string
           example: Open
       additionalProperties: true
-    MediaInfo:
+    ApiError:
       type: object
-      properties:
-        thumbs_count:
-          type: integer
-          example: 17
-        has_360:
-          type: boolean
-          example: true
-        photos:
-          type: array
-          items:
-            type: string
-            format: uri
       additionalProperties: true
+      properties:
+        ok:
+          type:
+          - boolean
+          - 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        error:
+          type:
+          - string
+          - object
+          - array
+          - 'null'
+        errors:
+          type:
+          - object
+          - array
+          - 'null'
     Vehicle:
       type: object
       description: Normalized Copart or IAAI auction vehicle record.
@@ -970,58 +999,33 @@ components:
         media:
           $ref: '#/components/schemas/MediaInfo'
       additionalProperties: true
-    VehicleDetailsResponse:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/Vehicle'
-    CursorMeta:
-      type: object
-      properties:
-        per_page:
-          type: integer
-          minimum: 1
-          maximum: 100
-          example: 20
-        next_cursor:
-          type:
-          - string
-          - 'null'
-          example: eyJ2ZWhpY2xlcy5hZCI6IjIwMjYtMDctMTMgMTY6MzA6MDAiLCJ2ZWhpY2xlcy51cGRhdGVkX2F0IjoiMjAyNi0wNy0xMSAwODowOToyOSIsIl9wb2ludHNUb05leHRJdGVtcyI6dHJ1ZX0
-        prev_cursor:
-          type:
-          - string
-          - 'null'
-          example: null
-      additionalProperties: true
-      description: Cursor pagination metadata.
-      required:
-      - per_page
-      - next_cursor
-      - prev_cursor
   headers:
-    SubscriptionBaseLimit:
-      description: Base subscription request allowance for the active period.
+    SubscriptionLimit:
+      description: Total subscription request allowance for the active period.
       schema:
         type: integer
     RateLimitLimit:
       description: Current short-window request limit when rate limiting applies.
       schema:
         type: integer
-    SubscriptionUsed:
-      description: Requests consumed in the active subscription period.
-      schema:
-        type: integer
-    SubscriptionLimit:
-      description: Total subscription request allowance for the active period.
-      schema:
-        type: integer
-    SubscriptionRemaining:
-      description: Requests remaining in the active subscription period.
+    SubscriptionExtraLimit:
+      description: Additional request allowance applied to the active period.
       schema:
         type: integer
     PerPageLimit:
       description: Effective maximum page size for the authenticated plan/workflow.
+      schema:
+        type: integer
+    RateLimitRemaining:
+      description: Remaining requests in the current short-window rate-limit bucket.
+      schema:
+        type: integer
+    SubscriptionUsed:
+      description: Requests consumed in the active subscription period.
+      schema:
+        type: integer
+    SubscriptionBaseLimit:
+      description: Base subscription request allowance for the active period.
       schema:
         type: integer
     SubscriptionPeriodStart:
@@ -1034,17 +1038,13 @@ components:
       schema:
         type: string
         format: date-time
-    RateLimitRemaining:
-      description: Remaining requests in the current short-window rate-limit bucket.
-      schema:
-        type: integer
-    SubscriptionExtraLimit:
-      description: Additional request allowance applied to the active period.
+    SubscriptionRemaining:
+      description: Requests remaining in the active subscription period.
       schema:
         type: integer
   responses:
-    ValidationError:
-      description: Request parameters failed validation.
+    ServiceUnavailable:
+      description: The service or an upstream dependency is temporarily unavailable.
       headers:
         X-RateLimit-Limit:
           $ref: '#/components/headers/RateLimitLimit'
@@ -1070,8 +1070,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ApiError'
-    ServiceUnavailable:
-      description: The service or an upstream dependency is temporarily unavailable.
+    ValidationError:
+      description: Request parameters failed validation.
       headers:
         X-RateLimit-Limit:
           $ref: '#/components/headers/RateLimitLimit'
