@@ -132,6 +132,8 @@ apis:
   humanURL: https://apibara.tech/en/products/vehicle-auction-data-api
   baseURL: https://apibara.tech/api/v1/vehicle-auction
   tags:
+  - Location
+  tags_raw:
   - Locations
   properties:
   - type: OpenAPI
