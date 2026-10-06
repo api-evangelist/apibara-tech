@@ -7,7 +7,7 @@ description: >-
 url: https://raw.githubusercontent.com/api-evangelist/apibara-tech/refs/heads/main/apis.yml
 image: https://apibara.tech/seo/1783599358_p64LSzUP.png
 created: '2026-09-18'
-modified: '2026-09-18'
+modified: '2026-10-06'
 specificationVersion: '0.21'
 tags:
   - Automotive
@@ -399,6 +399,8 @@ maintainers:
     email: admin@apibara.tech
     url: https://apibara.tech
 common:
+  - url: https://apibara.tech/en/blog
+    type: Blog
   - type: Overlay
     url: overlays/apibara-tech-vehicle-auction-overlay.yaml
   - type: MCPServer
