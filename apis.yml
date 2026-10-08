@@ -399,6 +399,10 @@ maintainers:
     email: admin@apibara.tech
     url: https://apibara.tech
 common:
+  - type: Plans
+    url: plans/apibara-tech-plans-pricing.yml
+  - type: RateLimits
+    url: rate-limits/apibara-tech-rate-limits.yml
   - url: https://apibara.tech/en/blog
     type: Blog
   - type: Overlay
