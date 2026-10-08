@@ -54,3 +54,59 @@ plans:
     requests_per_month: 2000000
     rate_limit_per_sec: 100
     burst: 100
+x-canonical:
+  generated: '2026-10-08'
+  vocabulary: all/0-working/economics/plans-canonical.yml
+  models:
+  - free
+  - subscription
+  units: []
+  plans:
+  - name: Test
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods: []
+  - name: Basic
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods: []
+  - name: Power
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods: []
+  - name: Pro
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods: []
+  - name: Pro+
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods: []
+  - name: Pro max
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods: []
+  - name: Mega
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods: []
+  - name: Mega max
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods: []
