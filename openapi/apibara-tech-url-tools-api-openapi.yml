@@ -1,7 +1,10 @@
 openapi: 3.2.0
 info:
   title: Apibara Copart & IAAI Vehicle Auction URL Tools API
-  description: Structured JSON API for Copart and IAAI vehicle auction data.
+  description: 'Structured JSON API for Copart and IAAI vehicle auction data. Search auction vehicles, retrieve VIN and lot details, photos, prices, auction status, sale history, related vehicles, filters, locations, usage information, image proxy responses, and auction-to-port shipping prices.
+
+
+    Canonical public facts: 20M+ lifetime/cumulative indexed auction records; 3.9M+ supported vehicle records represented in the dataset; approximately 30K+ records added or refreshed daily; supported price/status refresh up to 15 minutes and often sooner; supported live-bid refresh about 10–15 seconds. Indexed records are not a unique-VIN count; source-dependent fields can be null.'
   version: 1.1.0
   termsOfService: https://apibara.tech/en/terms
   contact:
@@ -12,12 +15,18 @@ info:
     name: Proprietary
     url: https://apibara.tech/en/terms
   x-apibara-facts:
-    lastVerified: '2026-09-18'
-    indexedRecords: 20000000
-    indexedRecordsLabel: 20M+
-    indexedRecordsMeaning: Current and retained historical auction records; not a unique-VIN or unique-vehicle count.
-    supportedVehicleRecords: 3200000
-    supportedVehicleRecordsLabel: 3.2M+
+    lastVerified: '2026-10-04'
+    lifetimeIndexedRecords: 20000000
+    lifetimeIndexedRecordsLabel: 20M+
+    lifetimeIndexedRecordsScope: lifetime_cumulative
+    lifetimeIndexedRecordsMeaning: Lifetime/cumulative records indexed over time; not the current retained dataset and not a unique-VIN or unique-vehicle count.
+    retainedDatasetSnapshot:
+      measuredAt: '2026-10-19T19:30:03Z'
+      currentSupportedVehicleRecords: 3931808
+      retainedHistoricalAuctionRecords: 5696512
+      currentPlusRetainedRecords: 9628320
+    supportedVehicleRecords: 3931808
+    supportedVehicleRecordsLabel: 3.9M+
     recordsAddedOrRefreshedDailyApprox: 30000
     recordsAddedOrRefreshedDailyLabel: 30K+
     generalRefreshMinutes: 15
@@ -220,36 +229,487 @@ paths:
       - lang: JavaScript
         label: Node.js fetch
         source: "const response = await fetch(\"https://apibara.tech/api/v1/vehicle-auction/vehicles/urltodetails\", {\n  method: \"GET\",\n  headers: {\n    Accept: \"application/json\",\n    \"X-API-Key\": process.env.APIBARA_API_KEY,\n  },\n});\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconsole.log(await response.json());"
+      x-agentic-access:
+        action-class: connected
+        consequence: read
+        subject: optional
+        token:
+          max-ttl: 3600
+        audit: none
 components:
+  schemas:
+    Vehicle:
+      type: object
+      description: Normalized Copart or IAAI auction vehicle record.
+      properties:
+        platform:
+          type: string
+          example: iaai
+        lot_number:
+          type: string
+          example: '45416833'
+        vin:
+          type: string
+          example: 2HKRM4H7XEH623608
+        title:
+          type: string
+          example: 2014 HONDA CR-V EX-L
+        year:
+          type: integer
+          example: 2014
+        make:
+          type: string
+          example: HONDA
+        model:
+          type: string
+          example: CR-V
+        series:
+          $ref: '#/components/schemas/VehicleSeries'
+        generation:
+          $ref: '#/components/schemas/VehicleGeneration'
+        type:
+          type: string
+          example: AUTOMOBILE
+        color:
+          type: string
+          example: Black
+        fuel_type:
+          type: string
+          example: Gasoline
+        transmission:
+          type: string
+          example: Automatic
+        drive_type:
+          type: string
+          example: AWD
+        odometer:
+          type:
+          - object
+          - 'null'
+          description: Source-backed odometer readings in miles and kilometres. Missing readings may be null; unknown mileage is not zero.
+          properties:
+            mi:
+              type:
+              - number
+              - 'null'
+              minimum: 0
+            km:
+              type:
+              - number
+              - 'null'
+              minimum: 0
+          additionalProperties: true
+          example:
+            mi: 120000
+            km: 193121
+        damage:
+          type: string
+          example: Mechanical
+        auction:
+          $ref: '#/components/schemas/AuctionInfo'
+        pricing:
+          $ref: '#/components/schemas/PricingInfo'
+        location:
+          $ref: '#/components/schemas/VehicleLocation'
+        media:
+          $ref: '#/components/schemas/MediaInfo'
+        history:
+          type: array
+          description: Present only when include contains history. Retained sale-history entries for known auction lots of the same VIN.
+          items:
+            $ref: '#/components/schemas/IncludedVehicleHistoryItem'
+        vin_lots:
+          type: array
+          description: Present only when include contains vin_lots. Other known auction lot records for the same VIN, returned in summary form.
+          items:
+            $ref: '#/components/schemas/IncludedVinLot'
+        details:
+          type:
+          - object
+          - 'null'
+          additionalProperties: true
+          description: Source-aware detail metadata. IAAI includes normalized inventory sections; auction_information.prebidInformation.reserveMet is a raw IAAI prebid signal and is not equivalent to Copart seller_reserve_met. Copart includes source-backed sale_status (including ess values such as Minimum Bid) and seller_reserve_met when the Copart source explicitly supplies the flag, plus sanitized bid/yard/media metadata. Null in summary view.
+        vehicle_specs:
+          $ref: '#/components/schemas/VehicleSpecs'
+      additionalProperties: true
+    ApiError:
+      type: object
+      additionalProperties: true
+      properties:
+        ok:
+          type:
+          - boolean
+          - 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        error:
+          type:
+          - string
+          - object
+          - array
+          - 'null'
+        errors:
+          type:
+          - object
+          - array
+          - 'null'
+    IncludedVehicleHistoryItem:
+      type: object
+      properties:
+        platform:
+          type: string
+          enum:
+          - copart
+          - iaai
+        lot_number:
+          type:
+          - string
+          - integer
+          - 'null'
+        date:
+          type:
+          - string
+          - 'null'
+          format: date
+        price:
+          type:
+          - number
+          - 'null'
+        status:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    VehicleSpecs:
+      type: object
+      description: Normalized vehicle specifications. Field availability varies by auction source and lot.
+      properties:
+        body_style:
+          type:
+          - string
+          - 'null'
+          description: Normalized body style used by the body_style filter. IAAI uses VehicleClass. Copart primarily uses the source-backed Body Style field; when that source field is missing, a conservative fallback is allowed only from explicit vehicle-type labels that are themselves body categories (for example Sedan, SUV, Coupe, Convertible). Generic AUTOMOBILE is not guessed.
+          examples:
+          - Coupe
+          - Convertible
+          - Sedan
+          - SUV/Crossover
+      additionalProperties: true
+    EstimatedCost:
+      type: object
+      description: Apibara robust historical price estimate. The base comparable set uses distinct final sold lots matching exact make + model + model year + primary damage; Copart "Sold on Approval" is excluded because it is a non-final high bid. Base from/to are Q1-Q3 and at least 3 exact final-sale comparables are required. When enough final sales exist for the target engine and mileage band (or engine alone), a market-value multiplier refines the range for high/low trims. The most recent retained non-final high bid from the same lot may be exposed as previous_high_bid_usd for context only; it never changes from, median or to and is never treated as a confirmed sale.
+      properties:
+        from:
+          type: integer
+          minimum: 101
+          description: Lower bound in USD. Starts from the exact-damage Q1 and may be engine/mileage-refined when sufficient final-sale data exists.
+        to:
+          type: integer
+          minimum: 101
+          description: Upper bound in USD. Starts from the exact-damage Q3 and may be engine/mileage-refined when sufficient final-sale data exists. Previous lot bids never extend this bound.
+        median:
+          type: integer
+          minimum: 101
+          description: Central estimate in USD. Starts from the exact-damage median and may be engine/mileage-refined when sufficient final-sale data exists. Previous lot bids never change this value.
+        text:
+          type: string
+          description: Human-readable Q1-Q3 USD range.
+          example: $4,900 - $8,500
+        sample_count:
+          type: integer
+          minimum: 3
+          description: Number of distinct exact make + model + year + primary-damage final sold comparable lots. Copart Sold on Approval is excluded. Estimate is null when fewer than 3 exist.
+        refinement_method:
+          type:
+          - string
+          - 'null'
+          enum:
+          - engine_mileage
+          - engine
+          - null
+          description: Optional high/low-trim refinement. engine_mileage is preferred when at least 5 final-sale comparables exist in the target engine+mileage band; engine is the fallback when at least 5 engine-matched final sales exist.
+        refinement_sample_count:
+          type:
+          - integer
+          - 'null'
+          minimum: 5
+          description: Number of final-sale comparables behind the engine or engine+mileage refinement; null when no refinement was applied.
+        engine_size_l:
+          type:
+          - number
+          - 'null'
+          description: Normalized engine displacement used by the refinement, in liters.
+        mileage_bucket:
+          type:
+          - string
+          - 'null'
+          description: Mileage band considered by the refinement, for example 0-30k or 30-75k. Engine-only fallback may still report the target band.
+        market_multiplier:
+          type:
+          - number
+          - 'null'
+          description: Median market-value ratio of the selected engine/mileage cohort to the same make+model+year market, applied to the damage-specific base range.
+        previous_high_bid_usd:
+          type:
+          - integer
+          - 'null'
+          minimum: 101
+          description: 'Most recent retained high bid from the previous non-final auction cycle for the same platform+lot (for example Not Sold or Sold on Approval). This is context only: it does not change from, median or to and is not a confirmed sale price.'
+      required:
+      - from
+      - to
+      - median
+      - text
+      - sample_count
+      additionalProperties: false
+    VehicleSeries:
+      type:
+      - object
+      - 'null'
+      description: Canonical model-family / series resolved from the generation catalog.
+      properties:
+        key:
+          type:
+          - string
+          - 'null'
+          example: SERIES3
+        name:
+          type:
+          - string
+          - 'null'
+          example: Series 3
+    VehicleLocation:
+      type: object
+      properties:
+        display:
+          type: string
+          example: Englishtown (NJ)
+        state:
+          type:
+          - string
+          - 'null'
+          example: NJ
+        facility_id:
+          type: string
+          example: '136'
+      additionalProperties: true
+    VehicleDetailsResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Vehicle'
+    MediaInfo:
+      type: object
+      properties:
+        thumbs_count:
+          type: integer
+          minimum: 0
+          description: Total source image count represented by the vehicle media set.
+        has_360:
+          type: boolean
+          description: True when IAAI Link360 or Copart copartMedia.views_360 source data is available.
+        photos:
+          type: array
+          items:
+            type: string
+            format: uri
+        images_count:
+          type: integer
+          minimum: 0
+          description: Total image count.
+        items_count:
+          type: integer
+          minimum: 0
+          description: Number of media items returned in this response. Summary view may return fewer items than images_count.
+        has_video:
+          type: boolean
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      additionalProperties: true
+    IncludedVinLot:
+      type: object
+      description: Summary-form auction lot for the same VIN. Field availability depends on source and lot state.
+      properties:
+        platform:
+          type: string
+        lot_number:
+          type:
+          - string
+          - integer
+          - 'null'
+        vin:
+          type:
+          - string
+          - 'null'
+        title:
+          type:
+          - string
+          - 'null'
+        year:
+          type:
+          - integer
+          - 'null'
+        make:
+          type:
+          - string
+          - 'null'
+        model:
+          type:
+          - string
+          - 'null'
+        auction:
+          $ref: '#/components/schemas/AuctionInfo'
+        pricing:
+          $ref: '#/components/schemas/PricingInfo'
+      additionalProperties: true
+    PricingInfo:
+      type: object
+      properties:
+        current_bid_usd:
+          type:
+          - number
+          - 'null'
+          description: Current observed bid. Zero/unavailable source values are normalized to null.
+        buy_now_usd:
+          type:
+          - number
+          - 'null'
+          description: Buy Now amount; unavailable/zero source placeholders are null.
+        sale_price_usd:
+          type:
+          - number
+          - 'null'
+          description: Canonical persisted final/approval price when positive; unavailable/zero source placeholders are null.
+        current_bid_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: Source-backed observation timestamp for current_bid_usd when a matching bid event for the current auction cycle was captured. Null when no matching source timestamp exists; never inferred from generic vehicle updated_at.
+        current_bid2_usd:
+          type:
+          - number
+          - 'null'
+          description: Legacy secondary source bid field. Zero/unavailable values are normalized to null.
+        last_sold_price_usd:
+          type:
+          - number
+          - 'null'
+          description: Persisted last known positive sale price; unavailable/zero source placeholders are null.
+        estimated_retail_value_usd:
+          type:
+          - number
+          - 'null'
+          description: Copart Estimated Retail Value (ERV) when the Copart source provides a positive value. Null for IAAI and for Copart records where ERV is unavailable or zero.
+        estimated_cost:
+          oneOf:
+          - $ref: '#/components/schemas/EstimatedCost'
+          - type: 'null'
+          description: Apibara robust historical final-sale estimate. Exact make + model + model year + primary damage Q1-Q3 is the base and fewer than 3 exact final-sale comparables yields null. Copart Sold on Approval / On Approval is excluded. When sufficient final sales exist, engine + mileage-band (or engine-only) market-value refinement adjusts high/low-trim vehicles. The most recent retained non-final bid for the same lot may be exposed as previous_high_bid_usd strictly as context and never changes the Q1-Q3 range or median. Distinct from Copart estimated_retail_value_usd.
+      additionalProperties: true
+    VehicleGeneration:
+      type:
+      - object
+      - 'null'
+      description: Resolved vehicle generation metadata when the source vehicle can be matched unambiguously.
+      properties:
+        id:
+          type: integer
+          example: 379
+        name:
+          type: string
+          example: F15
+        generation:
+          type: string
+          example: F15
+        make:
+          type: string
+          example: BMW
+        model:
+          type: string
+          example: X5
+        year_from:
+          type: integer
+          example: 2013
+        year_to:
+          type:
+          - integer
+          - 'null'
+          example: 2018
+        label:
+          type: string
+          example: F15 (2013–2018)
+    AuctionInfo:
+      type: object
+      properties:
+        state:
+          type: string
+          example: open
+        auction_at:
+          type: string
+          format: date-time
+          example: '2026-06-22T13:30:00+00:00'
+        lot_status:
+          type: string
+          example: Timed
+        lot_sub_status:
+          type: string
+          example: Open
+        last_sold_day:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: Last known sale-outcome day. Placeholder dates before year 2000 are normalized to null.
+        last_sold_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: Exact source-backed sale/outcome observation timestamp when available. Null when only a day-level sale date is known.
+        last_sold_status:
+          type:
+          - string
+          - 'null'
+        outcome_status:
+          type:
+          - string
+          - 'null'
+          enum:
+          - Sold
+          - Sold on Approval
+          - Not Sold
+          - Removed
+          - null
+          description: Explicit normalized outcome only; elapsed time alone is not treated as a sale.
+        auction_ended_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: Best known completed-auction/outcome timestamp. Prefers source-backed sale/outcome evidence; otherwise may use a past scheduled auction timestamp. Never uses a future schedule as an ended timestamp.
+        outcome_observed_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: Timestamp when the current outcome was observed/persisted. Prefers source-backed sale evidence; falls back to the persisted vehicle update timestamp when exact source timing is unavailable.
+        lot_removed:
+          type: boolean
+          description: Source/parser evidence that the lot was removed from active inventory.
+        sold_buy_now:
+          type: boolean
+        sold_timed:
+          type: boolean
+      additionalProperties: true
   headers:
-    SubscriptionLimit:
-      description: Total subscription request allowance for the active period.
-      schema:
-        type: integer
-    SubscriptionPeriodEnd:
-      description: End of the active subscription quota period.
-      schema:
-        type: string
-        format: date-time
     SubscriptionExtraLimit:
       description: Additional request allowance applied to the active period.
-      schema:
-        type: integer
-    SubscriptionPeriodStart:
-      description: Start of the active subscription quota period.
-      schema:
-        type: string
-        format: date-time
-    SubscriptionUsed:
-      description: Requests consumed in the active subscription period.
-      schema:
-        type: integer
-    SubscriptionBaseLimit:
-      description: Base subscription request allowance for the active period.
-      schema:
-        type: integer
-    SubscriptionRemaining:
-      description: Requests remaining in the active subscription period.
       schema:
         type: integer
     PerPageLimit:
@@ -260,13 +720,39 @@ components:
       description: Remaining requests in the current short-window rate-limit bucket.
       schema:
         type: integer
+    SubscriptionBaseLimit:
+      description: Base subscription request allowance for the active period.
+      schema:
+        type: integer
+    SubscriptionPeriodEnd:
+      description: End of the active subscription quota period.
+      schema:
+        type: string
+        format: date-time
+    SubscriptionUsed:
+      description: Requests consumed in the active subscription period.
+      schema:
+        type: integer
+    SubscriptionRemaining:
+      description: Requests remaining in the active subscription period.
+      schema:
+        type: integer
+    SubscriptionPeriodStart:
+      description: Start of the active subscription quota period.
+      schema:
+        type: string
+        format: date-time
+    SubscriptionLimit:
+      description: Total subscription request allowance for the active period.
+      schema:
+        type: integer
     RateLimitLimit:
       description: Current short-window request limit when rate limiting applies.
       schema:
         type: integer
   responses:
-    ValidationError:
-      description: Request parameters failed validation.
+    ServiceUnavailable:
+      description: The service or an upstream dependency is temporarily unavailable.
       headers:
         X-RateLimit-Limit:
           $ref: '#/components/headers/RateLimitLimit'
@@ -319,8 +805,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ApiError'
-    ServiceUnavailable:
-      description: The service or an upstream dependency is temporarily unavailable.
+    ValidationError:
+      description: Request parameters failed validation.
       headers:
         X-RateLimit-Limit:
           $ref: '#/components/headers/RateLimitLimit'
@@ -346,150 +832,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ApiError'
-  schemas:
-    MediaInfo:
-      type: object
-      properties:
-        thumbs_count:
-          type: integer
-          example: 17
-        has_360:
-          type: boolean
-          example: true
-        photos:
-          type: array
-          items:
-            type: string
-            format: uri
-      additionalProperties: true
-    ApiError:
-      type: object
-      additionalProperties: true
-      properties:
-        ok:
-          type:
-          - boolean
-          - 'null'
-        message:
-          type:
-          - string
-          - 'null'
-        error:
-          type:
-          - string
-          - object
-          - array
-          - 'null'
-        errors:
-          type:
-          - object
-          - array
-          - 'null'
-    AuctionInfo:
-      type: object
-      properties:
-        state:
-          type: string
-          example: open
-        auction_at:
-          type: string
-          format: date-time
-          example: '2026-06-22T13:30:00+00:00'
-        lot_status:
-          type: string
-          example: Timed
-        lot_sub_status:
-          type: string
-          example: Open
-      additionalProperties: true
-    PricingInfo:
-      type: object
-      properties:
-        current_bid_usd:
-          type: number
-          example: 25
-        buy_now_usd:
-          type:
-          - number
-          - 'null'
-        sale_price_usd:
-          type:
-          - number
-          - 'null'
-      additionalProperties: true
-    VehicleLocation:
-      type: object
-      properties:
-        display:
-          type: string
-          example: Englishtown (NJ)
-        state:
-          type: string
-          example: NJ
-        facility_id:
-          type: string
-          example: '136'
-      additionalProperties: true
-    Vehicle:
-      type: object
-      description: Normalized Copart or IAAI auction vehicle record.
-      properties:
-        platform:
-          type: string
-          example: iaai
-        lot_number:
-          type: string
-          example: '45416833'
-        vin:
-          type: string
-          example: 2HKRM4H7XEH623608
-        title:
-          type: string
-          example: 2014 HONDA CR-V EX-L
-        year:
-          type: integer
-          example: 2014
-        make:
-          type: string
-          example: HONDA
-        model:
-          type: string
-          example: CR-V
-        type:
-          type: string
-          example: AUTOMOBILE
-        color:
-          type: string
-          example: Black
-        fuel_type:
-          type: string
-          example: Gasoline
-        transmission:
-          type: string
-          example: Automatic
-        drive_type:
-          type: string
-          example: AWD
-        odometer:
-          type: number
-          example: 120000
-        damage:
-          type: string
-          example: Mechanical
-        auction:
-          $ref: '#/components/schemas/AuctionInfo'
-        pricing:
-          $ref: '#/components/schemas/PricingInfo'
-        location:
-          $ref: '#/components/schemas/VehicleLocation'
-        media:
-          $ref: '#/components/schemas/MediaInfo'
-      additionalProperties: true
-    VehicleDetailsResponse:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/Vehicle'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
@@ -519,12 +861,18 @@ x-apibara-ai-resources:
   statusHistory: https://apibara.tech/status-history.json
   mcp: https://apibara.tech/mcp
 x-apibara-facts:
-  lastVerified: '2026-09-18'
-  indexedRecords: 20000000
-  indexedRecordsLabel: 20M+
-  indexedRecordsMeaning: Current and retained historical auction records; not a unique-VIN or unique-vehicle count.
-  supportedVehicleRecords: 3200000
-  supportedVehicleRecordsLabel: 3.2M+
+  lastVerified: '2026-10-04'
+  lifetimeIndexedRecords: 20000000
+  lifetimeIndexedRecordsLabel: 20M+
+  lifetimeIndexedRecordsScope: lifetime_cumulative
+  lifetimeIndexedRecordsMeaning: Lifetime/cumulative records indexed over time; not the current retained dataset and not a unique-VIN or unique-vehicle count.
+  retainedDatasetSnapshot:
+    measuredAt: '2026-10-19T19:30:03Z'
+    currentSupportedVehicleRecords: 3931808
+    retainedHistoricalAuctionRecords: 5696512
+    currentPlusRetainedRecords: 9628320
+  supportedVehicleRecords: 3931808
+  supportedVehicleRecordsLabel: 3.9M+
   recordsAddedOrRefreshedDailyApprox: 30000
   recordsAddedOrRefreshedDailyLabel: 30K+
   generalRefreshMinutes: 15
@@ -534,12 +882,13 @@ x-apibara-facts:
   freeRequestsMonthly: 100
   paymentCardRequiredForFreeTier: false
 x-apibara-search:
-  queryControls: 43
-  searchFilterSyncControls: 40
+  queryControls: 49
+  searchFilterSyncControls: 45
   technicalControls:
   - cursor
   - per_page
   - units
+  - include_total
   pagination:
     defaultPerPage: 20
     planDependent: true
@@ -562,9 +911,23 @@ x-apibara-search:
   - Ended
   incrementalSync:
     supported: true
-    parameter: updated_within_minutes
-    minimumMinutes: 1
-    maximumMinutes: 525600
+    preferred: durable_change_stream
+    durableChangeStream:
+      endpoint: /changes
+      cursorParameter: after
+      responseCursor: meta.next_cursor
+      ordering: sequence_asc
+      retentionDaysBeta: 14
+      cursorExpiredStatus: 410
+      cursorExpiredCode: cursor_expired
+      terminalEvents:
+      - lot.sold
+      - lot.not_sold
+      - lot.removed
+    recentRecordReconciliation:
+      parameter: updated_within_minutes
+      minimumMinutes: 1
+      maximumMinutes: 525600
   cursorPagination: true
   zipRadiusSearch: true
   shippingFilter: true
@@ -577,3 +940,9 @@ x-apibara-search:
     - all
     - only
     - without
+x-apibara-agentic-access:
+  provider_published: true
+  operations: 13
+  read_operations: 13
+  write_operations: 0
+  note: The current Vehicle Auction Data API contract is data-access oriented. Operation-level x-agentic-access is authoritative for agent execution semantics.

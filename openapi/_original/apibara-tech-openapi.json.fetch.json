@@ -1,0 +1,12 @@
+{
+ "url": "https://apibara.tech/openapi/v1.json",
+ "final": "https://apibara.tech/openapi/v1.json",
+ "status": 200,
+ "content_type": "application/json",
+ "bytes": 282405,
+ "sha256": "8f17b7c5c30a86854ad9b3c9a9b509ed8320bd42948591cb63897b1822191f61",
+ "fetched_at": "2026-10-19",
+ "fetched_by": "APIEvangelist-Harvest/1.0 (+https://apievangelist.com)",
+ "match": "byte-identical",
+ "note": "re-archived: the provider's current document replaced a stale archive (roadmap#793); the old files are in openapi/_superseded/2026-10-19-stale"
+}

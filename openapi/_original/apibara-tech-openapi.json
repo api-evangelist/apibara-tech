@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "title": "Apibara Copart & IAAI Vehicle Auction API",
-        "description": "Structured JSON API for Copart and IAAI vehicle auction data. Search auction vehicles, retrieve VIN and lot details, photos, prices, auction status, sale history, related vehicles, filters, locations, usage information, image proxy responses, and auction-to-port shipping prices.\n\nCanonical public facts: 20M+ indexed current and retained historical auction records; 3.2M+ supported vehicle records represented in the dataset; approximately 30K+ records added or refreshed daily; supported price/status refresh up to 15 minutes and often sooner; supported live-bid refresh about 10–15 seconds. Indexed records are not a unique-VIN count; source-dependent fields can be null.",
+        "description": "Structured JSON API for Copart and IAAI vehicle auction data. Search auction vehicles, retrieve VIN and lot details, photos, prices, auction status, sale history, related vehicles, filters, locations, usage information, image proxy responses, and auction-to-port shipping prices.\n\nCanonical public facts: 20M+ lifetime/cumulative indexed auction records; 3.9M+ supported vehicle records represented in the dataset; approximately 30K+ records added or refreshed daily; supported price/status refresh up to 15 minutes and often sooner; supported live-bid refresh about 10–15 seconds. Indexed records are not a unique-VIN count; source-dependent fields can be null.",
         "version": "1.1.0",
         "termsOfService": "https://apibara.tech/en/terms",
         "contact": {
@@ -15,12 +15,19 @@
             "url": "https://apibara.tech/en/terms"
         },
         "x-apibara-facts": {
-            "lastVerified": "2026-09-18",
-            "indexedRecords": 20000000,
-            "indexedRecordsLabel": "20M+",
-            "indexedRecordsMeaning": "Current and retained historical auction records; not a unique-VIN or unique-vehicle count.",
-            "supportedVehicleRecords": 3200000,
-            "supportedVehicleRecordsLabel": "3.2M+",
+            "lastVerified": "2026-10-04",
+            "lifetimeIndexedRecords": 20000000,
+            "lifetimeIndexedRecordsLabel": "20M+",
+            "lifetimeIndexedRecordsScope": "lifetime_cumulative",
+            "lifetimeIndexedRecordsMeaning": "Lifetime/cumulative records indexed over time; not the current retained dataset and not a unique-VIN or unique-vehicle count.",
+            "retainedDatasetSnapshot": {
+                "measuredAt": "2026-10-19T19:30:03Z",
+                "currentSupportedVehicleRecords": 3931808,
+                "retainedHistoricalAuctionRecords": 5696512,
+                "currentPlusRetainedRecords": 9628320
+            },
+            "supportedVehicleRecords": 3931808,
+            "supportedVehicleRecordsLabel": "3.9M+",
             "recordsAddedOrRefreshedDailyApprox": 30000,
             "recordsAddedOrRefreshedDailyLabel": "30K+",
             "generalRefreshMinutes": 15,
@@ -79,6 +86,10 @@
         {
             "name": "Image Proxy",
             "description": "Proxy supported auction vehicle images."
+        },
+        {
+            "name": "Change Stream",
+            "description": "Durable, sequence-ordered material vehicle changes for reliable synchronization and replay."
         }
     ],
     "paths": {
@@ -88,7 +99,7 @@
                     "Vehicles"
                 ],
                 "summary": "List auction vehicles",
-                "description": "Search, filter, and paginate Copart and IAAI vehicle auction records. Cursor pagination is opaque: send the next_cursor returned by the API without decoding it. For incremental synchronization, use updated_within_minutes. Nullable/source-dependent fields are normal.\n\nThe endpoint exposes 43 documented query controls, including 40 search, filtering and synchronization controls. Use `updated_within_minutes` with cursor pagination and auction source/mode/state filters for incremental synchronization.",
+                "description": "Search and incrementally synchronize normalized Copart and IAAI inventory. Filters are cumulative. Applied filters are echoed in meta.applied_filters; unrecognized query keys are reported in meta.unknown_filters. Use include_total=true only when an exact reconciliation count is required.",
                 "operationId": "listAuctionVehicles",
                 "parameters": [
                     {
@@ -234,10 +245,67 @@
                         "in": "query",
                         "required": false,
                         "schema": {
-                            "type": "string"
+                            "oneOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            ]
                         },
-                        "description": "Vehicle type.",
-                        "example": "AUTOMOBILE"
+                        "description": "Vehicle type. Multiple values are OR-ed; query-array syntax such as type[]=COUPE&type[]=AUTOMOBILE is supported.",
+                        "example": "AUTOMOBILE",
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "body_style",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            ]
+                        },
+                        "description": "Filter by vehicle_specs.body_style. Multiple values are OR-ed. Query-array syntax is supported, for example body_style[]=Coupe&body_style[]=Convertible. IAAI uses its VehicleClass value; Copart uses the source-backed Body Style field.",
+                        "example": "Coupe"
+                    },
+                    {
+                        "name": "body_type",
+                        "in": "query",
+                        "required": false,
+                        "deprecated": true,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            ]
+                        },
+                        "description": "Compatibility alias for body_style. Multiple values are OR-ed. Prefer body_style for new integrations.",
+                        "example": "Coupe"
                     },
                     {
                         "name": "make",
@@ -250,6 +318,28 @@
                         "example": "BMW"
                     },
                     {
+                        "name": "series",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            ]
+                        },
+                        "style": "form",
+                        "explode": true,
+                        "description": "Canonical vehicle series / model family. Examples: BMW Series 3, Mercedes-Benz C-Class, Toyota Camry, Audi A4, Ford F-150. Optional; can be combined with model and generation filters.",
+                        "example": "Series 3"
+                    },
+                    {
                         "name": "model",
                         "in": "query",
                         "required": false,
@@ -258,6 +348,52 @@
                         },
                         "description": "Vehicle model.",
                         "example": "X5"
+                    },
+                    {
+                        "name": "generation_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    }
+                                }
+                            ]
+                        },
+                        "style": "form",
+                        "explode": true,
+                        "description": "Vehicle generation catalog ID. Use /vehicles/filters?make=BMW&model=X5 to discover valid IDs. Multiple IDs are supported.",
+                        "example": 379
+                    },
+                    {
+                        "name": "generation",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            ]
+                        },
+                        "style": "form",
+                        "explode": true,
+                        "description": "Human-readable generation alias, for example F15, E70 or G05. generation_id is preferred for stable integrations.",
+                        "example": "F15"
                     },
                     {
                         "name": "color",
@@ -278,6 +414,32 @@
                         "explode": true
                     },
                     {
+                        "name": "vin_prefix",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "maxLength": 79
+                                },
+                                {
+                                    "type": "array",
+                                    "maxItems": 20,
+                                    "items": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 3
+                                    }
+                                }
+                            ]
+                        },
+                        "description": "Match VINs that start with any supplied prefix (OR). Supports comma-separated values vin_prefix=1,4,5 and array syntax vin_prefix[]=1&vin_prefix[]=4&vin_prefix[]=5. Prefixes consist of 1–3 VIN letters/numbers; at most 20 unique prefixes. Combines with other filters, cursor, and include_total. Prefix does not guarantee manufacturing country.",
+                        "example": "1,4,5"
+                    },
+                    {
                         "name": "fuel_type",
                         "in": "query",
                         "required": false,
@@ -295,7 +457,7 @@
                                 ]
                             }
                         },
-                        "description": "Fuel type. Multiple values are supported.",
+                        "description": "Normalized fuel type; Hybrid includes source values Hybrid, Electric and Gas Hybrid, Hybrid Engine, and Electric and Diesel Hybrid. Multiple values are supported.",
                         "style": "form",
                         "explode": true,
                         "example": [
@@ -344,24 +506,40 @@
                         "example": 5
                     },
                     {
-                        "name": "engine_hp_from",
+                        "name": "engine_type",
                         "in": "query",
                         "required": false,
                         "schema": {
-                            "type": "number"
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "I",
+                                        "V",
+                                        "W",
+                                        "B",
+                                        "H"
+                                    ]
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "enum": [
+                                            "I",
+                                            "V",
+                                            "W",
+                                            "B",
+                                            "H"
+                                        ]
+                                    }
+                                }
+                            ]
                         },
-                        "description": "Minimum engine horsepower.",
-                        "example": 150
-                    },
-                    {
-                        "name": "engine_hp_to",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "number"
-                        },
-                        "description": "Maximum engine horsepower.",
-                        "example": 500
+                        "style": "form",
+                        "explode": true,
+                        "description": "Engine layout. I=inline, V=V engine, W=W engine, B/H=boxer/horizontally opposed. Scalar and repeated-array forms are supported.",
+                        "example": "I"
                     },
                     {
                         "name": "transmission",
@@ -559,6 +737,17 @@
                         ]
                     },
                     {
+                        "name": "include_total",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "description": "When true, meta.total contains an exact filtered count. Counts are cached briefly; omit this parameter for the lowest-latency cursor synchronization path.",
+                        "example": true
+                    },
+                    {
                         "name": "facility_id",
                         "in": "query",
                         "required": false,
@@ -573,10 +762,24 @@
                         "in": "query",
                         "required": false,
                         "schema": {
-                            "type": "string"
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z]{2,3}$"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z]{2,3}$"
+                                    }
+                                }
+                            ]
                         },
-                        "description": "Location state code.",
-                        "example": "FL"
+                        "description": "Auction facility state/region code. Accepts a scalar or repeated/form-style array, e.g. loc_state=FL or loc_state[]=FL.",
+                        "example": "FL",
+                        "style": "form",
+                        "explode": true
                     },
                     {
                         "name": "office_name",
@@ -910,7 +1113,16 @@
                         "label": "Node.js fetch",
                         "source": "const response = await fetch(\"https://apibara.tech/api/v1/vehicle-auction/vehicles\", {\n  method: \"GET\",\n  headers: {\n    Accept: \"application/json\",\n    \"X-API-Key\": process.env.APIBARA_API_KEY,\n  },\n});\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconsole.log(await response.json());"
                     }
-                ]
+                ],
+                "x-agentic-access": {
+                    "action-class": "connected",
+                    "consequence": "read",
+                    "subject": "optional",
+                    "token": {
+                        "max-ttl": 3600
+                    },
+                    "audit": "none"
+                }
             }
         },
         "/vehicles/{slugVin}": {
@@ -919,7 +1131,7 @@
                     "Vehicles"
                 ],
                 "summary": "Get vehicle details",
-                "description": "Get vehicle auction details by VIN or lot number.",
+                "description": "Get vehicle auction details by VIN or lot number. Use include=history,vin_lots to embed retained sale history and other known lots for the same VIN in one response.",
                 "operationId": "getVehicleDetails",
                 "parameters": [
                     {
@@ -929,8 +1141,18 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Vehicle identifier. Can be VIN or lot number.",
-                        "example": "WBAVL1C58FVY28848 or 78691915"
+                        "description": "Vehicle identifier. Accepts a 17-character VIN, canonical lot number, Apibara slug_vin returned by list responses, or an IAAI source stock number in 1110xxxxxxxx form. IAAI 1110xxxxxxxx is normalized to the canonical 8-digit lot number.",
+                        "example": "WBAVL1C58FVY28848 or 46045959 or 111046045959"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "required": false,
+                        "description": "Optionally embed related detail-page data in the same response. Comma-separated values: history adds retained sale-history records across known Copart/IAAI lots for the VIN; vin_lots adds other known auction lots for the same VIN in summary form. Example: include=history,vin_lots.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "history,vin_lots"
                     }
                 ],
                 "responses": {
@@ -1177,7 +1399,16 @@
                         "label": "Node.js fetch",
                         "source": "const response = await fetch(\"https://apibara.tech/api/v1/vehicle-auction/vehicles/{slugVin}\", {\n  method: \"GET\",\n  headers: {\n    Accept: \"application/json\",\n    \"X-API-Key\": process.env.APIBARA_API_KEY,\n  },\n});\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconsole.log(await response.json());"
                     }
-                ]
+                ],
+                "x-agentic-access": {
+                    "action-class": "connected",
+                    "consequence": "read",
+                    "subject": "optional",
+                    "token": {
+                        "max-ttl": 3600
+                    },
+                    "audit": "none"
+                }
             }
         },
         "/vehicles/{slugVin}/history": {
@@ -1196,8 +1427,8 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Vehicle identifier. Can be VIN or lot number.",
-                        "example": "WBAVL1C58FVY28848 or 78691915"
+                        "description": "Vehicle identifier. Accepts a 17-character VIN, canonical lot number, Apibara slug_vin returned by list responses, or an IAAI source stock number in 1110xxxxxxxx form. IAAI 1110xxxxxxxx is normalized to the canonical 8-digit lot number.",
+                        "example": "WBAVL1C58FVY28848 or 46045959 or 111046045959"
                     },
                     {
                         "name": "per_page",
@@ -1467,7 +1698,16 @@
                         "label": "Node.js fetch",
                         "source": "const response = await fetch(\"https://apibara.tech/api/v1/vehicle-auction/vehicles/{slugVin}/history\", {\n  method: \"GET\",\n  headers: {\n    Accept: \"application/json\",\n    \"X-API-Key\": process.env.APIBARA_API_KEY,\n  },\n});\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconsole.log(await response.json());"
                     }
-                ]
+                ],
+                "x-agentic-access": {
+                    "action-class": "connected",
+                    "consequence": "read",
+                    "subject": "optional",
+                    "token": {
+                        "max-ttl": 3600
+                    },
+                    "audit": "none"
+                }
             }
         },
         "/vehicles/{slugVin}/related": {
@@ -1486,8 +1726,8 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Vehicle identifier. Can be VIN or lot number.",
-                        "example": "WBAVL1C58FVY28848 or 78691915"
+                        "description": "Vehicle identifier. Accepts a 17-character VIN, canonical lot number, Apibara slug_vin returned by list responses, or an IAAI source stock number in 1110xxxxxxxx form. IAAI 1110xxxxxxxx is normalized to the canonical 8-digit lot number.",
+                        "example": "WBAVL1C58FVY28848 or 46045959 or 111046045959"
                     }
                 ],
                 "responses": {
@@ -1734,7 +1974,16 @@
                         "label": "Node.js fetch",
                         "source": "const response = await fetch(\"https://apibara.tech/api/v1/vehicle-auction/vehicles/{slugVin}/related\", {\n  method: \"GET\",\n  headers: {\n    Accept: \"application/json\",\n    \"X-API-Key\": process.env.APIBARA_API_KEY,\n  },\n});\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconsole.log(await response.json());"
                     }
-                ]
+                ],
+                "x-agentic-access": {
+                    "action-class": "connected",
+                    "consequence": "read",
+                    "subject": "optional",
+                    "token": {
+                        "max-ttl": 3600
+                    },
+                    "audit": "none"
+                }
             }
         },
         "/vehicles/filters": {
@@ -1743,9 +1992,40 @@
                     "Filters"
                 ],
                 "summary": "Get vehicle filters metadata",
-                "description": "Get available filters metadata for vehicle auction search.",
+                "description": "Get available filters metadata. With make, returns series/model-family options. With make plus optional series and/or model, returns dependent generation options.",
                 "operationId": "getVehicleFilters",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "name": "make",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Vehicle make used to return dependent generation options.",
+                        "example": "BMW"
+                    },
+                    {
+                        "name": "series",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Optional series/model-family context used with make to narrow dependent generation options.",
+                        "example": "Series 3"
+                    },
+                    {
+                        "name": "model",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Vehicle model used together with make to return dependent generation options.",
+                        "example": "X5"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Available filters metadata.",
@@ -1990,7 +2270,16 @@
                         "label": "Node.js fetch",
                         "source": "const response = await fetch(\"https://apibara.tech/api/v1/vehicle-auction/vehicles/filters\", {\n  method: \"GET\",\n  headers: {\n    Accept: \"application/json\",\n    \"X-API-Key\": process.env.APIBARA_API_KEY,\n  },\n});\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconsole.log(await response.json());"
                     }
-                ]
+                ],
+                "x-agentic-access": {
+                    "action-class": "connected",
+                    "consequence": "read",
+                    "subject": "optional",
+                    "token": {
+                        "max-ttl": 3600
+                    },
+                    "audit": "none"
+                }
             }
         },
         "/vehicles/{slugVin}/shipping": {
@@ -2009,8 +2298,8 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Vehicle identifier. Can be VIN or lot number.",
-                        "example": "WBAVL1C58FVY28848 or 78691915"
+                        "description": "Vehicle identifier. Accepts a 17-character VIN, canonical lot number, Apibara slug_vin returned by list responses, or an IAAI source stock number in 1110xxxxxxxx form. IAAI 1110xxxxxxxx is normalized to the canonical 8-digit lot number.",
+                        "example": "WBAVL1C58FVY28848 or 46045959 or 111046045959"
                     },
                     {
                         "name": "ports",
@@ -2267,7 +2556,16 @@
                         "label": "Node.js fetch",
                         "source": "const response = await fetch(\"https://apibara.tech/api/v1/vehicle-auction/vehicles/{slugVin}/shipping\", {\n  method: \"GET\",\n  headers: {\n    Accept: \"application/json\",\n    \"X-API-Key\": process.env.APIBARA_API_KEY,\n  },\n});\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconsole.log(await response.json());"
                     }
-                ]
+                ],
+                "x-agentic-access": {
+                    "action-class": "connected",
+                    "consequence": "read",
+                    "subject": "optional",
+                    "token": {
+                        "max-ttl": 3600
+                    },
+                    "audit": "none"
+                }
             }
         },
         "/locations": {
@@ -2614,7 +2912,16 @@
                         "label": "Node.js fetch",
                         "source": "const response = await fetch(\"https://apibara.tech/api/v1/vehicle-auction/locations\", {\n  method: \"GET\",\n  headers: {\n    Accept: \"application/json\",\n    \"X-API-Key\": process.env.APIBARA_API_KEY,\n  },\n});\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconsole.log(await response.json());"
                     }
-                ]
+                ],
+                "x-agentic-access": {
+                    "action-class": "connected",
+                    "consequence": "read",
+                    "subject": "optional",
+                    "token": {
+                        "max-ttl": 3600
+                    },
+                    "audit": "none"
+                }
             }
         },
         "/shipping/auction-to-port": {
@@ -2901,7 +3208,16 @@
                         "label": "Node.js fetch",
                         "source": "const response = await fetch(\"https://apibara.tech/api/v1/vehicle-auction/shipping/auction-to-port\", {\n  method: \"GET\",\n  headers: {\n    Accept: \"application/json\",\n    \"X-API-Key\": process.env.APIBARA_API_KEY,\n  },\n});\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconsole.log(await response.json());"
                     }
-                ]
+                ],
+                "x-agentic-access": {
+                    "action-class": "connected",
+                    "consequence": "read",
+                    "subject": "optional",
+                    "token": {
+                        "max-ttl": 3600
+                    },
+                    "audit": "none"
+                }
             }
         },
         "/vehicles/urltodetails": {
@@ -3168,7 +3484,16 @@
                         "label": "Node.js fetch",
                         "source": "const response = await fetch(\"https://apibara.tech/api/v1/vehicle-auction/vehicles/urltodetails\", {\n  method: \"GET\",\n  headers: {\n    Accept: \"application/json\",\n    \"X-API-Key\": process.env.APIBARA_API_KEY,\n  },\n});\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconsole.log(await response.json());"
                     }
-                ]
+                ],
+                "x-agentic-access": {
+                    "action-class": "connected",
+                    "consequence": "read",
+                    "subject": "optional",
+                    "token": {
+                        "max-ttl": 3600
+                    },
+                    "audit": "none"
+                }
             }
         },
         "/usage": {
@@ -3354,7 +3679,16 @@
                         "label": "Node.js fetch",
                         "source": "const response = await fetch(\"https://apibara.tech/api/v1/vehicle-auction/usage\", {\n  method: \"GET\",\n  headers: {\n    Accept: \"application/json\",\n    \"X-API-Key\": process.env.APIBARA_API_KEY,\n  },\n});\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconsole.log(await response.json());"
                     }
-                ]
+                ],
+                "x-agentic-access": {
+                    "action-class": "connected",
+                    "consequence": "read",
+                    "subject": "optional",
+                    "token": {
+                        "max-ttl": 3600
+                    },
+                    "audit": "none"
+                }
             }
         },
         "/image-proxy": {
@@ -3635,7 +3969,265 @@
                         "label": "Node.js fetch",
                         "source": "const response = await fetch(\"https://apibara.tech/api/v1/vehicle-auction/image-proxy\", {\n  method: \"GET\",\n  headers: {\n    Accept: \"application/json\",\n    \"X-API-Key\": process.env.APIBARA_API_KEY,\n  },\n});\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconsole.log(await response.json());"
                     }
-                ]
+                ],
+                "x-agentic-access": {
+                    "action-class": "connected",
+                    "consequence": "read",
+                    "subject": "optional",
+                    "token": {
+                        "max-ttl": 3600
+                    },
+                    "audit": "none"
+                }
+            }
+        },
+        "/market/sold-prices": {
+            "get": {
+                "summary": "Market sold-price statistics",
+                "description": "Aggregate retained positive sold-history prices by make and optional model/year/damage/source/date period. Responses are cached briefly.",
+                "operationId": "marketSoldPriceStats",
+                "parameters": [
+                    {
+                        "name": "make",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "BMW"
+                    },
+                    {
+                        "name": "model",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "X5"
+                    },
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1900,
+                            "maximum": 2100
+                        }
+                    },
+                    {
+                        "name": "damage",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "auction",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "copart",
+                                "iaai"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sale_date_from",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "sale_date_to",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sold-price statistics",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MarketSoldPriceStatsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing/invalid API key"
+                    },
+                    "422": {
+                        "description": "Invalid parameters"
+                    }
+                },
+                "x-agentic-access": {
+                    "action-class": "connected",
+                    "consequence": "read",
+                    "subject": "optional",
+                    "token": {
+                        "max-ttl": 3600
+                    },
+                    "audit": "none"
+                }
+            }
+        },
+        "/changes": {
+            "get": {
+                "tags": [
+                    "Change Stream"
+                ],
+                "summary": "Read durable vehicle changes",
+                "description": "Read material Copart and IAAI changes in monotonically increasing sequence order. Persist meta.next_cursor only after your local transaction succeeds, then pass it back as after on the next request. Sequence gaps are valid. Non-material technical null/zero initialization noise is filtered. If a cursor falls outside the retained window, the API returns HTTP 410 cursor_expired instead of silently skipping events.",
+                "operationId": "listVehicleChanges",
+                "parameters": [
+                    {
+                        "name": "after",
+                        "in": "query",
+                        "required": false,
+                        "description": "Return events with sequence greater than this checkpoint. Start with 0 for the oldest retained event.",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "minimum": 0,
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 500,
+                            "default": 100
+                        }
+                    },
+                    {
+                        "name": "platform",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "copart",
+                                "iaai"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "event_type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "lot.created",
+                                "lot.updated",
+                                "lot.sold",
+                                "lot.not_sold",
+                                "lot.removed",
+                                "auction.rescheduled",
+                                "auction.ended",
+                                "bid.changed",
+                                "buy_now.changed"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "terminal",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "lot_number",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "vin",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sequence-ordered change events.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VehicleChangesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "410": {
+                        "description": "The requested checkpoint has expired from the retained replay window.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChangeCursorExpiredResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid query parameters.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "x-codeSamples": [
+                    {
+                        "lang": "cURL",
+                        "source": "curl -H \"X-API-Key: YOUR_API_KEY\" \"https://apibara.tech/api/v1/vehicle-auction/changes?after=0&limit=100\""
+                    }
+                ],
+                "x-agentic-access": {
+                    "action-class": "connected",
+                    "consequence": "read",
+                    "subject": "optional",
+                    "token": {
+                        "max-ttl": 3600
+                    },
+                    "audit": "none"
+                }
             }
         }
     },
@@ -3765,6 +4357,12 @@
                         "type": "string",
                         "example": "CR-V"
                     },
+                    "series": {
+                        "$ref": "#/components/schemas/VehicleSeries"
+                    },
+                    "generation": {
+                        "$ref": "#/components/schemas/VehicleGeneration"
+                    },
                     "type": {
                         "type": "string",
                         "example": "AUTOMOBILE"
@@ -3786,8 +4384,32 @@
                         "example": "AWD"
                     },
                     "odometer": {
-                        "type": "number",
-                        "example": 120000
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "description": "Source-backed odometer readings in miles and kilometres. Missing readings may be null; unknown mileage is not zero.",
+                        "properties": {
+                            "mi": {
+                                "type": [
+                                    "number",
+                                    "null"
+                                ],
+                                "minimum": 0
+                            },
+                            "km": {
+                                "type": [
+                                    "number",
+                                    "null"
+                                ],
+                                "minimum": 0
+                            }
+                        },
+                        "additionalProperties": true,
+                        "example": {
+                            "mi": 120000,
+                            "km": 193121
+                        }
                     },
                     "damage": {
                         "type": "string",
@@ -3804,6 +4426,31 @@
                     },
                     "media": {
                         "$ref": "#/components/schemas/MediaInfo"
+                    },
+                    "history": {
+                        "type": "array",
+                        "description": "Present only when include contains history. Retained sale-history entries for known auction lots of the same VIN.",
+                        "items": {
+                            "$ref": "#/components/schemas/IncludedVehicleHistoryItem"
+                        }
+                    },
+                    "vin_lots": {
+                        "type": "array",
+                        "description": "Present only when include contains vin_lots. Other known auction lot records for the same VIN, returned in summary form.",
+                        "items": {
+                            "$ref": "#/components/schemas/IncludedVinLot"
+                        }
+                    },
+                    "details": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "additionalProperties": true,
+                        "description": "Source-aware detail metadata. IAAI includes normalized inventory sections; auction_information.prebidInformation.reserveMet is a raw IAAI prebid signal and is not equivalent to Copart seller_reserve_met. Copart includes source-backed sale_status (including ess values such as Minimum Bid) and seller_reserve_met when the Copart source explicitly supplies the flag, plus sanitized bid/yard/media metadata. Null in summary view."
+                    },
+                    "vehicle_specs": {
+                        "$ref": "#/components/schemas/VehicleSpecs"
                     }
                 },
                 "additionalProperties": true
@@ -3827,6 +4474,68 @@
                     "lot_sub_status": {
                         "type": "string",
                         "example": "Open"
+                    },
+                    "last_sold_day": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date",
+                        "description": "Last known sale-outcome day. Placeholder dates before year 2000 are normalized to null."
+                    },
+                    "last_sold_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Exact source-backed sale/outcome observation timestamp when available. Null when only a day-level sale date is known."
+                    },
+                    "last_sold_status": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "outcome_status": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "enum": [
+                            "Sold",
+                            "Sold on Approval",
+                            "Not Sold",
+                            "Removed",
+                            null
+                        ],
+                        "description": "Explicit normalized outcome only; elapsed time alone is not treated as a sale."
+                    },
+                    "auction_ended_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Best known completed-auction/outcome timestamp. Prefers source-backed sale/outcome evidence; otherwise may use a past scheduled auction timestamp. Never uses a future schedule as an ended timestamp."
+                    },
+                    "outcome_observed_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Timestamp when the current outcome was observed/persisted. Prefers source-backed sale evidence; falls back to the persisted vehicle update timestamp when exact source timing is unavailable."
+                    },
+                    "lot_removed": {
+                        "type": "boolean",
+                        "description": "Source/parser evidence that the lot was removed from active inventory."
+                    },
+                    "sold_buy_now": {
+                        "type": "boolean"
+                    },
+                    "sold_timed": {
+                        "type": "boolean"
                     }
                 },
                 "additionalProperties": true
@@ -3835,20 +4544,65 @@
                 "type": "object",
                 "properties": {
                     "current_bid_usd": {
-                        "type": "number",
-                        "example": 25
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "description": "Current observed bid. Zero/unavailable source values are normalized to null."
                     },
                     "buy_now_usd": {
                         "type": [
                             "number",
                             "null"
-                        ]
+                        ],
+                        "description": "Buy Now amount; unavailable/zero source placeholders are null."
                     },
                     "sale_price_usd": {
                         "type": [
                             "number",
                             "null"
-                        ]
+                        ],
+                        "description": "Canonical persisted final/approval price when positive; unavailable/zero source placeholders are null."
+                    },
+                    "current_bid_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Source-backed observation timestamp for current_bid_usd when a matching bid event for the current auction cycle was captured. Null when no matching source timestamp exists; never inferred from generic vehicle updated_at."
+                    },
+                    "current_bid2_usd": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "description": "Legacy secondary source bid field. Zero/unavailable values are normalized to null."
+                    },
+                    "last_sold_price_usd": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "description": "Persisted last known positive sale price; unavailable/zero source placeholders are null."
+                    },
+                    "estimated_retail_value_usd": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "description": "Copart Estimated Retail Value (ERV) when the Copart source provides a positive value. Null for IAAI and for Copart records where ERV is unavailable or zero."
+                    },
+                    "estimated_cost": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/EstimatedCost"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Apibara robust historical final-sale estimate. Exact make + model + model year + primary damage Q1-Q3 is the base and fewer than 3 exact final-sale comparables yields null. Copart Sold on Approval / On Approval is excluded. When sufficient final sales exist, engine + mileage-band (or engine-only) market-value refinement adjusts high/low-trim vehicles. The most recent retained non-final bid for the same lot may be exposed as previous_high_bid_usd strictly as context and never changes the Q1-Q3 range or median. Distinct from Copart estimated_retail_value_usd."
                     }
                 },
                 "additionalProperties": true
@@ -3861,7 +4615,10 @@
                         "example": "Englishtown (NJ)"
                     },
                     "state": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "example": "NJ"
                     },
                     "facility_id": {
@@ -3876,17 +4633,38 @@
                 "properties": {
                     "thumbs_count": {
                         "type": "integer",
-                        "example": 17
+                        "minimum": 0,
+                        "description": "Total source image count represented by the vehicle media set."
                     },
                     "has_360": {
                         "type": "boolean",
-                        "example": true
+                        "description": "True when IAAI Link360 or Copart copartMedia.views_360 source data is available."
                     },
                     "photos": {
                         "type": "array",
                         "items": {
                             "type": "string",
                             "format": "uri"
+                        }
+                    },
+                    "images_count": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Total image count."
+                    },
+                    "items_count": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Number of media items returned in this response. Summary view may return fewer items than images_count."
+                    },
+                    "has_video": {
+                        "type": "boolean"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 },
@@ -3897,35 +4675,137 @@
                 "properties": {
                     "platform": {
                         "type": "string",
-                        "example": "copart"
+                        "enum": [
+                            "copart",
+                            "iaai"
+                        ],
+                        "example": "iaai"
                     },
                     "facility_id": {
-                        "type": "string",
-                        "example": "136"
+                        "type": "integer",
+                        "example": 794
                     },
                     "name": {
                         "type": "string",
-                        "example": "Miami South"
+                        "example": "Mobile"
+                    },
+                    "name_desc": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "example": "Mobile"
                     },
                     "city": {
-                        "type": "string",
-                        "example": "Miami"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "example": "Mobile"
                     },
-                    "state": {
-                        "type": "string",
-                        "example": "FL"
+                    "state_code": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "example": "AL"
+                    },
+                    "state_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "example": "ALABAMA"
+                    },
+                    "country_code": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "example": "US"
+                    },
+                    "country_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "example": "United States"
                     },
                     "zip": {
-                        "type": "string",
-                        "example": "33166"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "example": "36618"
+                    },
+                    "address1": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "example": "3600 Desirrah Dr S"
+                    },
+                    "address2": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "example": "251-650-2540"
                     },
                     "latitude": {
-                        "type": "number",
-                        "example": 25.7617
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "example": 30.71475
                     },
                     "longitude": {
-                        "type": "number",
-                        "example": -80.1918
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "example": -88.1255
+                    },
+                    "location_url": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "example": "/us/Locations/794"
+                    },
+                    "sale_day": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "sale_time": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "time_zone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "today_auction_count": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "distance": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
                     }
                 },
                 "additionalProperties": true
@@ -3970,6 +4850,37 @@
                             "null"
                         ],
                         "example": null
+                    },
+                    "has_more": {
+                        "type": "boolean",
+                        "description": "True when next_cursor is available."
+                    },
+                    "total": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 0,
+                        "description": "Exact filtered row count when include_total=true; otherwise null."
+                    },
+                    "total_is_exact": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ],
+                        "description": "True when total was requested and computed exactly."
+                    },
+                    "applied_filters": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "description": "Normalized/requested filters applied to this list query."
+                    },
+                    "unknown_filters": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Unrecognized query keys. Non-empty means the client sent parameters outside the supported contract."
                     }
                 },
                 "additionalProperties": true,
@@ -4025,6 +4936,594 @@
                             "array",
                             "null"
                         ]
+                    }
+                }
+            },
+            "VehicleGeneration": {
+                "type": [
+                    "object",
+                    "null"
+                ],
+                "description": "Resolved vehicle generation metadata when the source vehicle can be matched unambiguously.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 379
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "F15"
+                    },
+                    "generation": {
+                        "type": "string",
+                        "example": "F15"
+                    },
+                    "make": {
+                        "type": "string",
+                        "example": "BMW"
+                    },
+                    "model": {
+                        "type": "string",
+                        "example": "X5"
+                    },
+                    "year_from": {
+                        "type": "integer",
+                        "example": 2013
+                    },
+                    "year_to": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "example": 2018
+                    },
+                    "label": {
+                        "type": "string",
+                        "example": "F15 (2013–2018)"
+                    }
+                }
+            },
+            "VehicleSeries": {
+                "type": [
+                    "object",
+                    "null"
+                ],
+                "description": "Canonical model-family / series resolved from the generation catalog.",
+                "properties": {
+                    "key": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "example": "SERIES3"
+                    },
+                    "name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "example": "Series 3"
+                    }
+                }
+            },
+            "IncludedVehicleHistoryItem": {
+                "type": "object",
+                "properties": {
+                    "platform": {
+                        "type": "string",
+                        "enum": [
+                            "copart",
+                            "iaai"
+                        ]
+                    },
+                    "lot_number": {
+                        "type": [
+                            "string",
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "date": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "price": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "status": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "additionalProperties": false
+            },
+            "IncludedVinLot": {
+                "type": "object",
+                "description": "Summary-form auction lot for the same VIN. Field availability depends on source and lot state.",
+                "properties": {
+                    "platform": {
+                        "type": "string"
+                    },
+                    "lot_number": {
+                        "type": [
+                            "string",
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "vin": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "year": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "make": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "model": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "auction": {
+                        "$ref": "#/components/schemas/AuctionInfo"
+                    },
+                    "pricing": {
+                        "$ref": "#/components/schemas/PricingInfo"
+                    }
+                },
+                "additionalProperties": true
+            },
+            "MarketSoldPriceStatsResponse": {
+                "type": "object",
+                "properties": {
+                    "ok": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "make": {
+                                "type": "string"
+                            },
+                            "model": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "year": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ]
+                            },
+                            "damage": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "auction": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "enum": [
+                                    "copart",
+                                    "iaai",
+                                    null
+                                ]
+                            },
+                            "records_count": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "average_sold_price": {
+                                "type": [
+                                    "number",
+                                    "null"
+                                ]
+                            },
+                            "min_sold_price": {
+                                "type": [
+                                    "number",
+                                    "null"
+                                ]
+                            },
+                            "max_sold_price": {
+                                "type": [
+                                    "number",
+                                    "null"
+                                ]
+                            },
+                            "currency": {
+                                "type": "string",
+                                "example": "USD"
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "required": [
+                    "ok",
+                    "data"
+                ]
+            },
+            "VehicleSpecs": {
+                "type": "object",
+                "description": "Normalized vehicle specifications. Field availability varies by auction source and lot.",
+                "properties": {
+                    "body_style": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Normalized body style used by the body_style filter. IAAI uses VehicleClass. Copart primarily uses the source-backed Body Style field; when that source field is missing, a conservative fallback is allowed only from explicit vehicle-type labels that are themselves body categories (for example Sedan, SUV, Coupe, Convertible). Generic AUTOMOBILE is not guessed.",
+                        "examples": [
+                            "Coupe",
+                            "Convertible",
+                            "Sedan",
+                            "SUV/Crossover"
+                        ]
+                    }
+                },
+                "additionalProperties": true
+            },
+            "EstimatedCost": {
+                "type": "object",
+                "description": "Apibara robust historical price estimate. The base comparable set uses distinct final sold lots matching exact make + model + model year + primary damage; Copart \"Sold on Approval\" is excluded because it is a non-final high bid. Base from/to are Q1-Q3 and at least 3 exact final-sale comparables are required. When enough final sales exist for the target engine and mileage band (or engine alone), a market-value multiplier refines the range for high/low trims. The most recent retained non-final high bid from the same lot may be exposed as previous_high_bid_usd for context only; it never changes from, median or to and is never treated as a confirmed sale.",
+                "properties": {
+                    "from": {
+                        "type": "integer",
+                        "minimum": 101,
+                        "description": "Lower bound in USD. Starts from the exact-damage Q1 and may be engine/mileage-refined when sufficient final-sale data exists."
+                    },
+                    "to": {
+                        "type": "integer",
+                        "minimum": 101,
+                        "description": "Upper bound in USD. Starts from the exact-damage Q3 and may be engine/mileage-refined when sufficient final-sale data exists. Previous lot bids never extend this bound."
+                    },
+                    "median": {
+                        "type": "integer",
+                        "minimum": 101,
+                        "description": "Central estimate in USD. Starts from the exact-damage median and may be engine/mileage-refined when sufficient final-sale data exists. Previous lot bids never change this value."
+                    },
+                    "text": {
+                        "type": "string",
+                        "description": "Human-readable Q1-Q3 USD range.",
+                        "example": "$4,900 - $8,500"
+                    },
+                    "sample_count": {
+                        "type": "integer",
+                        "minimum": 3,
+                        "description": "Number of distinct exact make + model + year + primary-damage final sold comparable lots. Copart Sold on Approval is excluded. Estimate is null when fewer than 3 exist."
+                    },
+                    "refinement_method": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "enum": [
+                            "engine_mileage",
+                            "engine",
+                            null
+                        ],
+                        "description": "Optional high/low-trim refinement. engine_mileage is preferred when at least 5 final-sale comparables exist in the target engine+mileage band; engine is the fallback when at least 5 engine-matched final sales exist."
+                    },
+                    "refinement_sample_count": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 5,
+                        "description": "Number of final-sale comparables behind the engine or engine+mileage refinement; null when no refinement was applied."
+                    },
+                    "engine_size_l": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "description": "Normalized engine displacement used by the refinement, in liters."
+                    },
+                    "mileage_bucket": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Mileage band considered by the refinement, for example 0-30k or 30-75k. Engine-only fallback may still report the target band."
+                    },
+                    "market_multiplier": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "description": "Median market-value ratio of the selected engine/mileage cohort to the same make+model+year market, applied to the damage-specific base range."
+                    },
+                    "previous_high_bid_usd": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 101,
+                        "description": "Most recent retained high bid from the previous non-final auction cycle for the same platform+lot (for example Not Sold or Sold on Approval). This is context only: it does not change from, median or to and is not a confirmed sale price."
+                    }
+                },
+                "required": [
+                    "from",
+                    "to",
+                    "median",
+                    "text",
+                    "sample_count"
+                ],
+                "additionalProperties": false
+            },
+            "VehicleChangeEvent": {
+                "type": "object",
+                "required": [
+                    "sequence",
+                    "event_id",
+                    "event",
+                    "terminal",
+                    "vehicle",
+                    "changed_fields",
+                    "before",
+                    "after",
+                    "recorded_at"
+                ],
+                "properties": {
+                    "sequence": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 918273645
+                    },
+                    "event_id": {
+                        "type": "string",
+                        "example": "chg_918273645"
+                    },
+                    "event": {
+                        "type": "string",
+                        "enum": [
+                            "lot.created",
+                            "lot.updated",
+                            "lot.sold",
+                            "lot.not_sold",
+                            "lot.removed",
+                            "auction.rescheduled",
+                            "auction.ended",
+                            "bid.changed",
+                            "buy_now.changed"
+                        ]
+                    },
+                    "terminal": {
+                        "type": "boolean",
+                        "description": "True only for terminal outcomes such as sold, not sold or removed."
+                    },
+                    "reason": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "examples": [
+                            "source_outcome",
+                            "source_removed",
+                            "awaiting_approval"
+                        ]
+                    },
+                    "vehicle": {
+                        "type": "object",
+                        "required": [
+                            "platform",
+                            "lot_number"
+                        ],
+                        "properties": {
+                            "id": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ],
+                                "format": "int64"
+                            },
+                            "platform": {
+                                "type": "string",
+                                "enum": [
+                                    "copart",
+                                    "iaai"
+                                ]
+                            },
+                            "platform_id": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ]
+                            },
+                            "lot_number": {
+                                "type": "string"
+                            },
+                            "vin": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    },
+                    "changed_fields": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Canonical field paths changed by this event."
+                    },
+                    "before": {
+                        "type": "object",
+                        "additionalProperties": true
+                    },
+                    "after": {
+                        "type": "object",
+                        "additionalProperties": true
+                    },
+                    "vehicle_updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "recorded_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "VehicleChangesResponse": {
+                "type": "object",
+                "required": [
+                    "ok",
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "ok": {
+                        "type": "boolean",
+                        "const": true
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/VehicleChangeEvent"
+                        }
+                    },
+                    "meta": {
+                        "type": "object",
+                        "required": [
+                            "schema_version",
+                            "after",
+                            "next_cursor",
+                            "has_more",
+                            "count",
+                            "retention_days",
+                            "ordering"
+                        ],
+                        "properties": {
+                            "schema_version": {
+                                "type": "string",
+                                "example": "2026-10-04.beta1"
+                            },
+                            "after": {
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "next_cursor": {
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "has_more": {
+                                "type": "boolean"
+                            },
+                            "count": {
+                                "type": "integer"
+                            },
+                            "oldest_available_sequence": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ],
+                                "format": "int64"
+                            },
+                            "latest_available_sequence": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ],
+                                "format": "int64"
+                            },
+                            "retention_days": {
+                                "type": "integer",
+                                "example": 14
+                            },
+                            "ordering": {
+                                "type": "string",
+                                "const": "sequence_asc"
+                            }
+                        }
+                    }
+                }
+            },
+            "ChangeCursorExpiredResponse": {
+                "type": "object",
+                "required": [
+                    "ok",
+                    "error",
+                    "message",
+                    "meta"
+                ],
+                "properties": {
+                    "ok": {
+                        "type": "boolean",
+                        "const": false
+                    },
+                    "error": {
+                        "type": "string",
+                        "const": "cursor_expired"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "meta": {
+                        "type": "object",
+                        "properties": {
+                            "schema_version": {
+                                "type": "string"
+                            },
+                            "requested_after": {
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "oldest_available_cursor": {
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "oldest_available_sequence": {
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "latest_available_sequence": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ],
+                                "format": "int64"
+                            },
+                            "retention_days": {
+                                "type": "integer"
+                            }
+                        }
                     }
                 }
             }
@@ -4384,12 +5883,19 @@
         "mcp": "https://apibara.tech/mcp"
     },
     "x-apibara-facts": {
-        "lastVerified": "2026-09-18",
-        "indexedRecords": 20000000,
-        "indexedRecordsLabel": "20M+",
-        "indexedRecordsMeaning": "Current and retained historical auction records; not a unique-VIN or unique-vehicle count.",
-        "supportedVehicleRecords": 3200000,
-        "supportedVehicleRecordsLabel": "3.2M+",
+        "lastVerified": "2026-10-04",
+        "lifetimeIndexedRecords": 20000000,
+        "lifetimeIndexedRecordsLabel": "20M+",
+        "lifetimeIndexedRecordsScope": "lifetime_cumulative",
+        "lifetimeIndexedRecordsMeaning": "Lifetime/cumulative records indexed over time; not the current retained dataset and not a unique-VIN or unique-vehicle count.",
+        "retainedDatasetSnapshot": {
+            "measuredAt": "2026-10-19T19:30:03Z",
+            "currentSupportedVehicleRecords": 3931808,
+            "retainedHistoricalAuctionRecords": 5696512,
+            "currentPlusRetainedRecords": 9628320
+        },
+        "supportedVehicleRecords": 3931808,
+        "supportedVehicleRecordsLabel": "3.9M+",
         "recordsAddedOrRefreshedDailyApprox": 30000,
         "recordsAddedOrRefreshedDailyLabel": "30K+",
         "generalRefreshMinutes": 15,
@@ -4401,12 +5907,13 @@
         "paymentCardRequiredForFreeTier": false
     },
     "x-apibara-search": {
-        "queryControls": 43,
-        "searchFilterSyncControls": 40,
+        "queryControls": 49,
+        "searchFilterSyncControls": 45,
         "technicalControls": [
             "cursor",
             "per_page",
-            "units"
+            "units",
+            "include_total"
         ],
         "pagination": {
             "defaultPerPage": 20,
@@ -4435,9 +5942,26 @@
         ],
         "incrementalSync": {
             "supported": true,
-            "parameter": "updated_within_minutes",
-            "minimumMinutes": 1,
-            "maximumMinutes": 525600
+            "preferred": "durable_change_stream",
+            "durableChangeStream": {
+                "endpoint": "/changes",
+                "cursorParameter": "after",
+                "responseCursor": "meta.next_cursor",
+                "ordering": "sequence_asc",
+                "retentionDaysBeta": 14,
+                "cursorExpiredStatus": 410,
+                "cursorExpiredCode": "cursor_expired",
+                "terminalEvents": [
+                    "lot.sold",
+                    "lot.not_sold",
+                    "lot.removed"
+                ]
+            },
+            "recentRecordReconciliation": {
+                "parameter": "updated_within_minutes",
+                "minimumMinutes": 1,
+                "maximumMinutes": 525600
+            }
         },
         "cursorPagination": true,
         "zipRadiusSearch": true,
@@ -4454,5 +5978,12 @@
                 "without"
             ]
         }
+    },
+    "x-apibara-agentic-access": {
+        "provider_published": true,
+        "operations": 13,
+        "read_operations": 13,
+        "write_operations": 0,
+        "note": "The current Vehicle Auction Data API contract is data-access oriented. Operation-level x-agentic-access is authoritative for agent execution semantics."
     }
 }

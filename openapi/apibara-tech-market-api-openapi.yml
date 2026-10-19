@@ -1,0 +1,284 @@
+openapi: 3.2.0
+info:
+  title: Apibara Copart & IAAI Vehicle Auction Market API
+  description: 'Structured JSON API for Copart and IAAI vehicle auction data. Search auction vehicles, retrieve VIN and lot details, photos, prices, auction status, sale history, related vehicles, filters, locations, usage information, image proxy responses, and auction-to-port shipping prices.
+
+
+    Canonical public facts: 20M+ lifetime/cumulative indexed auction records; 3.9M+ supported vehicle records represented in the dataset; approximately 30K+ records added or refreshed daily; supported price/status refresh up to 15 minutes and often sooner; supported live-bid refresh about 10–15 seconds. Indexed records are not a unique-VIN count; source-dependent fields can be null.'
+  version: 1.1.0
+  termsOfService: https://apibara.tech/en/terms
+  contact:
+    name: Apibara
+    url: https://apibara.tech/en/products/vehicle-auction-data-api
+    email: admin@apibara.tech
+  license:
+    name: Proprietary
+    url: https://apibara.tech/en/terms
+  x-apibara-facts:
+    lastVerified: '2026-10-04'
+    lifetimeIndexedRecords: 20000000
+    lifetimeIndexedRecordsLabel: 20M+
+    lifetimeIndexedRecordsScope: lifetime_cumulative
+    lifetimeIndexedRecordsMeaning: Lifetime/cumulative records indexed over time; not the current retained dataset and not a unique-VIN or unique-vehicle count.
+    retainedDatasetSnapshot:
+      measuredAt: '2026-10-19T19:30:03Z'
+      currentSupportedVehicleRecords: 3931808
+      retainedHistoricalAuctionRecords: 5696512
+      currentPlusRetainedRecords: 9628320
+    supportedVehicleRecords: 3931808
+    supportedVehicleRecordsLabel: 3.9M+
+    recordsAddedOrRefreshedDailyApprox: 30000
+    recordsAddedOrRefreshedDailyLabel: 30K+
+    generalRefreshMinutes: 15
+    liveBidRefreshSeconds:
+      min: 10
+      max: 15
+    freeRequestsMonthly: 100
+    paymentCardRequiredForFreeTier: false
+servers:
+- url: https://apibara.tech/api/v1/vehicle-auction
+  description: Production server
+security:
+- ApiKeyAuth: []
+tags:
+- name: Market
+paths:
+  /market/sold-prices:
+    get:
+      summary: Market sold-price statistics
+      description: Aggregate retained positive sold-history prices by make and optional model/year/damage/source/date period. Responses are cached briefly.
+      operationId: marketSoldPriceStats
+      parameters:
+      - name: make
+        in: query
+        required: true
+        schema:
+          type: string
+        example: BMW
+      - name: model
+        in: query
+        required: false
+        schema:
+          type: string
+        example: X5
+      - name: year
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+      - name: damage
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: auction
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - copart
+          - iaai
+      - name: sale_date_from
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: sale_date_to
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: Sold-price statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketSoldPriceStatsResponse'
+        '401':
+          description: Missing/invalid API key
+        '422':
+          description: Invalid parameters
+      x-agentic-access:
+        action-class: connected
+        consequence: read
+        subject: optional
+        token:
+          max-ttl: 3600
+        audit: none
+      tags:
+      - Market
+components:
+  schemas:
+    MarketSoldPriceStatsResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            make:
+              type: string
+            model:
+              type:
+              - string
+              - 'null'
+            year:
+              type:
+              - integer
+              - 'null'
+            damage:
+              type:
+              - string
+              - 'null'
+            auction:
+              type:
+              - string
+              - 'null'
+              enum:
+              - copart
+              - iaai
+              - null
+            records_count:
+              type: integer
+              minimum: 0
+            average_sold_price:
+              type:
+              - number
+              - 'null'
+            min_sold_price:
+              type:
+              - number
+              - 'null'
+            max_sold_price:
+              type:
+              - number
+              - 'null'
+            currency:
+              type: string
+              example: USD
+          additionalProperties: false
+      required:
+      - ok
+      - data
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Apibara API key.
+externalDocs:
+  description: Vehicle Auction Data API documentation and AI-readable resources
+  url: https://apibara.tech/en/products/vehicle-auction-data-api/docs
+x-apibara-machine-readable:
+  product: https://apibara.tech/en/products/vehicle-auction-data-api
+  copart_api: https://apibara.tech/en/products/vehicle-auction-data-api/copart-api
+  iaai_api: https://apibara.tech/en/products/vehicle-auction-data-api/iaai-api
+  coverage: https://apibara.tech/coverage.json
+  performance: https://apibara.tech/performance.json
+  status: https://apibara.tech/status.json
+  ai_facts: https://apibara.tech/ai-facts.json
+  llms: https://apibara.tech/llms.txt
+  llms_full: https://apibara.tech/llms-full.txt
+x-apibara-ai-resources:
+  llms: https://apibara.tech/llms.txt
+  llmsFull: https://apibara.tech/llms-full.txt
+  aiFacts: https://apibara.tech/ai-facts.json
+  coverage: https://apibara.tech/coverage.json
+  performance: https://apibara.tech/performance.json
+  status: https://apibara.tech/status.json
+  statusHistory: https://apibara.tech/status-history.json
+  mcp: https://apibara.tech/mcp
+x-apibara-facts:
+  lastVerified: '2026-10-04'
+  lifetimeIndexedRecords: 20000000
+  lifetimeIndexedRecordsLabel: 20M+
+  lifetimeIndexedRecordsScope: lifetime_cumulative
+  lifetimeIndexedRecordsMeaning: Lifetime/cumulative records indexed over time; not the current retained dataset and not a unique-VIN or unique-vehicle count.
+  retainedDatasetSnapshot:
+    measuredAt: '2026-10-19T19:30:03Z'
+    currentSupportedVehicleRecords: 3931808
+    retainedHistoricalAuctionRecords: 5696512
+    currentPlusRetainedRecords: 9628320
+  supportedVehicleRecords: 3931808
+  supportedVehicleRecordsLabel: 3.9M+
+  recordsAddedOrRefreshedDailyApprox: 30000
+  recordsAddedOrRefreshedDailyLabel: 30K+
+  generalRefreshMinutes: 15
+  liveBidRefreshSeconds:
+    min: 10
+    max: 15
+  freeRequestsMonthly: 100
+  paymentCardRequiredForFreeTier: false
+x-apibara-search:
+  queryControls: 49
+  searchFilterSyncControls: 45
+  technicalControls:
+  - cursor
+  - per_page
+  - units
+  - include_total
+  pagination:
+    defaultPerPage: 20
+    planDependent: true
+    publicTierMaxima:
+    - 20
+    - 30
+    - 40
+    customPlansMayDiffer: true
+  auctionSources:
+  - All
+  - Copart
+  - IAAI
+  auctionModes:
+  - All
+  - Timed
+  - Buy Now
+  auctionStates:
+  - Open
+  - Live
+  - Ended
+  incrementalSync:
+    supported: true
+    preferred: durable_change_stream
+    durableChangeStream:
+      endpoint: /changes
+      cursorParameter: after
+      responseCursor: meta.next_cursor
+      ordering: sequence_asc
+      retentionDaysBeta: 14
+      cursorExpiredStatus: 410
+      cursorExpiredCode: cursor_expired
+      terminalEvents:
+      - lot.sold
+      - lot.not_sold
+      - lot.removed
+    recentRecordReconciliation:
+      parameter: updated_within_minutes
+      minimumMinutes: 1
+      maximumMinutes: 525600
+  cursorPagination: true
+  zipRadiusSearch: true
+  shippingFilter: true
+  guides:
+    filters: https://apibara.tech/en/vehicle-auction-api-filters
+    incrementalSync: https://apibara.tech/en/vehicle-auction-incremental-sync-api
+  upcoming:
+    parameter: upcoming
+    values:
+    - all
+    - only
+    - without
+x-apibara-agentic-access:
+  provider_published: true
+  operations: 13
+  read_operations: 13
+  write_operations: 0
+  note: The current Vehicle Auction Data API contract is data-access oriented. Operation-level x-agentic-access is authoritative for agent execution semantics.

@@ -4,9 +4,11 @@
     "_original/apibara-tech-openapi.json"
   ],
   "outputs": [
+    "apibara-tech-change-stream-api-openapi.yml",
     "apibara-tech-filters-api-openapi.yml",
     "apibara-tech-image-proxy-api-openapi.yml",
     "apibara-tech-locations-api-openapi.yml",
+    "apibara-tech-market-api-openapi.yml",
     "apibara-tech-related-vehicles-api-openapi.yml",
     "apibara-tech-shipping-api-openapi.yml",
     "apibara-tech-url-tools-api-openapi.yml",
@@ -20,17 +22,9 @@
   "notes": [
     "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
     "apibara-tech-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
-    "apis.yml register: already-registered"
+    "apibara-tech-openapi.json: tagged paths GET /market/sold-prices -> Market",
+    "apibara-tech-openapi.json: declared missing tag: Market",
+    "apis.yml register: written (+2 apis, 11 total)"
   ],
-  "skipped": [
-    "apibara-tech-filters-api-openapi.yml: previously refined output, superseded by openapi/_original/",
-    "apibara-tech-image-proxy-api-openapi.yml: previously refined output, superseded by openapi/_original/",
-    "apibara-tech-locations-api-openapi.yml: previously refined output, superseded by openapi/_original/",
-    "apibara-tech-related-vehicles-api-openapi.yml: previously refined output, superseded by openapi/_original/",
-    "apibara-tech-shipping-api-openapi.yml: previously refined output, superseded by openapi/_original/",
-    "apibara-tech-url-tools-api-openapi.yml: previously refined output, superseded by openapi/_original/",
-    "apibara-tech-usage-api-openapi.yml: previously refined output, superseded by openapi/_original/",
-    "apibara-tech-vehicle-history-api-openapi.yml: previously refined output, superseded by openapi/_original/",
-    "apibara-tech-vehicles-api-openapi.yml: previously refined output, superseded by openapi/_original/"
-  ]
+  "skipped": []
 }

@@ -394,6 +394,27 @@ apis:
     url: https://apibara.tech/llms.txt
   - type: Documentation
     url: https://apibara.tech/en/vehicle-auction-mcp-server
+- aid: apibara-tech:apibara-tech-change-stream-api
+  name: Apibara.tech Change Stream API
+  description: >-
+    Durable, sequence-ordered material vehicle changes for reliable synchronization and replay.
+  humanURL: https://apibara.tech/en/products/vehicle-auction-data-api
+  baseURL: https://apibara.tech/api/v1/vehicle-auction
+  tags:
+  - Change Stream
+  properties:
+  - type: OpenAPI
+    url: openapi/apibara-tech-change-stream-api-openapi.yml
+- aid: apibara-tech:apibara-tech-market-api
+  name: Apibara.tech Market API
+  description: The Market API from Apibara.tech — 1 operation(s) for market.
+  humanURL: https://apibara.tech/en/products/vehicle-auction-data-api
+  baseURL: https://apibara.tech/api/v1/vehicle-auction
+  tags:
+  - Market
+  properties:
+  - type: OpenAPI
+    url: openapi/apibara-tech-market-api-openapi.yml
 maintainers:
   - FN: Apibara.tech
     email: admin@apibara.tech
