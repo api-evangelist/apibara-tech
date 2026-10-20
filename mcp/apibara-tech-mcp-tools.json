@@ -1,301 +1,676 @@
 {
-  "tools": [
-    {
-      "name": "search_auction_vehicles",
-      "title": "Search auction vehicles",
-      "description": "Search supported Copart and IAAI vehicle auction records. Use exact documented filters; fields can be nullable and source-dependent.",
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "s": {
-            "type": "string",
-            "description": "VIN, lot number or title search."
-          },
-          "platform": {
-            "type": "string",
-            "enum": [
-              "copart",
-              "iaai"
-            ]
-          },
-          "lot_status": {
-            "type": "string",
-            "enum": [
-              "All",
-              "Timed",
-              "Buy Now"
-            ]
-          },
-          "lot_sub_status": {
-            "type": "string",
-            "enum": [
-              "Open",
-              "Live",
-              "Ended"
-            ]
-          },
-          "upcoming": {
-            "type": "string",
-            "enum": [
-              "all",
-              "only",
-              "without"
-            ]
-          },
-          "updated_within_minutes": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 525600
-          },
-          "make": {
-            "type": "string"
-          },
-          "model": {
-            "type": "string"
-          },
-          "year_from": {
-            "type": "integer"
-          },
-          "year_to": {
-            "type": "integer"
-          },
-          "price_min": {
-            "type": "number"
-          },
-          "price_max": {
-            "type": "number"
-          },
-          "facility_id": {
-            "type": [
-              "integer",
-              "string"
-            ]
-          },
-          "loc_state": {
-            "type": "string"
-          },
-          "today_only": {
-            "type": "boolean"
-          },
-          "has_shipping_price": {
-            "type": "boolean"
-          },
-          "per_page": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 100
-          },
-          "cursor": {
-            "type": "string"
+  "endpoint": "https://apibara.tech/mcp",
+  "captured": "2026-10-20",
+  "method": "initialize + tools/list (anonymous, no tool called; roadmap#992)",
+  "protocol_version": "2025-11-25",
+  "server_info": {
+    "name": "apibara-vehicle-auction-data",
+    "version": "1.0.0"
+  },
+  "result": {
+    "tools": [
+      {
+        "name": "search_auction_vehicles",
+        "title": "Search auction vehicles",
+        "description": "Use for broad inventory discovery, filtering and incremental synchronization across supported Copart and IAA / IAAI records. For one known VIN or lot use get_vehicle; for retained auction appearances use get_vehicle_history.",
+        "inputSchema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "s": {
+              "type": "string",
+              "description": "Search by VIN, lot number or vehicle title/model text."
+            },
+            "lot_status": {
+              "type": "string",
+              "enum": [
+                "All",
+                "Timed",
+                "Buy Now"
+              ],
+              "description": "Auction mode filter: All, Timed or Buy Now."
+            },
+            "lot_sub_status": {
+              "type": "string",
+              "enum": [
+                "Open",
+                "Live",
+                "Ended"
+              ],
+              "description": "Normalized auction state: Open for active/open lots, Live for currently live supported lots, Ended for closed/ended lots."
+            },
+            "upcoming": {
+              "type": "string",
+              "enum": [
+                "all",
+                "only",
+                "without"
+              ],
+              "description": "Upcoming selector: all=no upcoming restriction, only=upcoming eligible lots only, without=exclude upcoming lots."
+            },
+            "price_min": {
+              "type": "number",
+              "description": "Price min filter for GET /vehicles."
+            },
+            "price_max": {
+              "type": "number",
+              "description": "Price max filter for GET /vehicles."
+            },
+            "year_from": {
+              "type": "integer",
+              "description": "Year from filter for GET /vehicles."
+            },
+            "year_to": {
+              "type": "integer",
+              "description": "Year to filter for GET /vehicles."
+            },
+            "auction_type": {
+              "type": "integer",
+              "enum": [
+                0,
+                1,
+                2
+              ],
+              "description": "Numeric compatibility source selector: 0=all, 1=Copart, 2=IAAI. If both auction_type and platform are supplied, auction_type takes precedence; prefer platform for new integrations."
+            },
+            "platform": {
+              "type": "string",
+              "enum": [
+                "copart",
+                "iaai"
+              ],
+              "description": "Readable auction-source selector: copart or iaai. Omit for combined supported sources."
+            },
+            "type": {
+              "type": "string",
+              "description": "Vehicle type filter for GET /vehicles."
+            },
+            "body_style": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ],
+              "description": "Filter by vehicle_specs.body_style. A string or array is accepted; multiple values are OR-ed. IAAI uses VehicleClass and Copart uses the source-backed Body Style field."
+            },
+            "body_type": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ],
+              "description": "Deprecated compatibility alias for body_style. A string or array is accepted; prefer body_style for new integrations."
+            },
+            "vin_prefix": {
+              "type": "string",
+              "description": "VIN prefix(es) filter for GET /vehicles."
+            },
+            "make": {
+              "type": "string",
+              "description": "Make filter for GET /vehicles."
+            },
+            "series": {
+              "type": "string",
+              "description": "Series / model family filter for GET /vehicles."
+            },
+            "model": {
+              "type": "string",
+              "description": "Model filter for GET /vehicles."
+            },
+            "generation_id": {
+              "type": "string",
+              "description": "Generation ID filter for GET /vehicles."
+            },
+            "generation": {
+              "type": "string",
+              "description": "Generation filter for GET /vehicles."
+            },
+            "color": {
+              "type": "string",
+              "description": "Color filter for GET /vehicles."
+            },
+            "fuel_type": {
+              "type": "string",
+              "enum": [
+                "Diesel",
+                "Hybrid",
+                "Electric",
+                "Flexible",
+                "Gasoline",
+                "All others"
+              ],
+              "description": "Fuel type filter for GET /vehicles."
+            },
+            "odometer_from": {
+              "type": "number",
+              "description": "Odometer from filter for GET /vehicles."
+            },
+            "odometer_to": {
+              "type": "number",
+              "description": "Odometer to filter for GET /vehicles."
+            },
+            "engine_size_from": {
+              "type": "number",
+              "description": "Engine size from filter for GET /vehicles."
+            },
+            "engine_size_to": {
+              "type": "number",
+              "description": "Engine size to filter for GET /vehicles."
+            },
+            "engine_type": {
+              "type": "string",
+              "enum": [
+                "I",
+                "V",
+                "W",
+                "B"
+              ],
+              "description": "Engine type filter for GET /vehicles."
+            },
+            "transmission": {
+              "type": "string",
+              "enum": [
+                "Manual",
+                "Unknown",
+                "Automatic"
+              ],
+              "description": "Transmission filter for GET /vehicles."
+            },
+            "cylinders": {
+              "type": "integer",
+              "description": "Cylinders filter for GET /vehicles."
+            },
+            "drive_type": {
+              "type": "string",
+              "enum": [
+                "AWD",
+                "FWD",
+                "RWD"
+              ],
+              "description": "Drive type filter for GET /vehicles."
+            },
+            "run_cond": {
+              "type": "string",
+              "enum": [
+                "STATIONARY",
+                "NO INFORMATION",
+                "RUNS AND DRIVES",
+                "ENGINE START PROGRAM"
+              ],
+              "description": "Normalized run-condition filter."
+            },
+            "damage": {
+              "type": "string",
+              "enum": [
+                "Fire",
+                "Hail",
+                "Theft",
+                "Water",
+                "Chemical",
+                "Rollover",
+                "Mechanical",
+                "Vandalized",
+                "Repossession"
+              ],
+              "description": "Primary damage category filter."
+            },
+            "has_key": {
+              "type": "string",
+              "enum": [
+                "No",
+                "All",
+                "With"
+              ],
+              "description": "Key-availability filter using the documented values No, All or With."
+            },
+            "updated_within_minutes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 525600,
+              "description": "Incremental-sync window. Return records whose updated_at changed within this many minutes; supported range is 1..525600. Use with cursor pagination and an overlap window."
+            },
+            "cursor": {
+              "type": "string",
+              "description": "Opaque pagination cursor returned by the API. Send next_cursor back unchanged; do not decode or synthesize it."
+            },
+            "zip": {
+              "type": "string",
+              "description": "ZIP/postal code used with radius for supported proximity search."
+            },
+            "radius": {
+              "type": "integer",
+              "description": "Search radius around zip, interpreted using the selected units."
+            },
+            "units": {
+              "type": "string",
+              "enum": [
+                "mi",
+                "km"
+              ],
+              "description": "Distance and odometer unit system: mi or km."
+            },
+            "per_page": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "Requested page size. Effective maximum is subscription-plan dependent; common public plan limits are 20, 30 or 40 and custom plans may differ."
+            },
+            "include_total": {
+              "type": "boolean",
+              "description": "Include exact total filter for GET /vehicles."
+            },
+            "facility_id": {
+              "type": "string",
+              "description": "Auction facility identifier used to restrict results to one supported facility."
+            },
+            "loc_state": {
+              "type": "string",
+              "description": "Auction location state or region, for example FL."
+            },
+            "office_name": {
+              "type": "string",
+              "description": "Auction office or branch name filter."
+            },
+            "auction_date_from": {
+              "type": "string",
+              "format": "date",
+              "description": "Start auction date in YYYY-MM-DD format."
+            },
+            "auction_date_to": {
+              "type": "string",
+              "format": "date",
+              "description": "End auction date in YYYY-MM-DD format."
+            },
+            "today_only": {
+              "type": "boolean",
+              "description": "When true, restrict results to the endpoint current-day auction logic."
+            },
+            "sale_document_pending": {
+              "type": "boolean",
+              "description": "When true, restrict results to records with a pending sale document state when supported."
+            },
+            "sale_document_type": {
+              "type": "string",
+              "description": "Sale/title document type filter; values are source-backed and can vary."
+            },
+            "seller_type": {
+              "type": "string",
+              "enum": [
+                "dealer",
+                "finance",
+                "insurance",
+                "non_insurance"
+              ],
+              "description": "Normalized seller type: dealer, finance, insurance or non_insurance."
+            },
+            "has_shipping_price": {
+              "type": "boolean",
+              "description": "When true, return only vehicles with supported shipping-price data."
+            }
           }
+        },
+        "outputSchema": {
+          "type": "object",
+          "description": "Structured JSON returned by the canonical Apibara Vehicle Auction Data API. Source-dependent fields may be null or absent.",
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            },
+            "meta": {
+              "type": "object",
+              "description": "Pagination metadata. Treat cursor values as opaque.",
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true
         }
       },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "get_vehicle",
-      "title": "Get vehicle",
-      "description": "Retrieve one supported vehicle record by the VIN or slug_vin accepted by the canonical detail endpoint.",
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "identifier": {
-            "type": "string",
-            "minLength": 1,
-            "description": "VIN or slug_vin accepted by the canonical vehicle detail endpoint."
-          }
-        },
-        "required": [
-          "identifier"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "get_vehicle_history",
-      "title": "Get vehicle auction history",
-      "description": "Retrieve retained Copart + IAAI auction history for one supported vehicle when available. This is not a complete ownership or accident history.",
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "identifier": {
-            "type": "string",
-            "minLength": 1,
-            "description": "VIN or slug_vin accepted by the canonical vehicle detail endpoint."
-          }
-        },
-        "required": [
-          "identifier"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "get_related_vehicles",
-      "title": "Get related vehicles",
-      "description": "Retrieve related supported auction vehicles.",
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "identifier": {
-            "type": "string",
-            "minLength": 1,
-            "description": "VIN or slug_vin accepted by the canonical vehicle detail endpoint."
+      {
+        "name": "get_vehicle",
+        "title": "Get vehicle",
+        "description": "Use when the user already has a VIN, lot number or supported slug and needs the current normalized vehicle record. Request include history and/or vin_lots when the same tool call should also return retained sale history or other known auction lots for the same VIN.",
+        "inputSchema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "identifier": {
+              "type": "string",
+              "minLength": 1,
+              "description": "VIN, lot number or slug_vin accepted by the canonical vehicle detail endpoint."
+            },
+            "include": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "history",
+                  "vin_lots"
+                ]
+              },
+              "uniqueItems": true,
+              "maxItems": 2,
+              "description": "Optional related data to embed in the vehicle detail result."
+            }
           },
-          "per_page": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 100
-          }
+          "required": [
+            "identifier"
+          ]
         },
-        "required": [
-          "identifier"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "get_vehicle_filters",
-      "title": "Get vehicle filters",
-      "description": "Retrieve current supported filter metadata for search UIs and integrations.",
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "platform": {
-            "type": "string",
-            "enum": [
-              "copart",
-              "iaai"
-            ]
-          }
+        "outputSchema": {
+          "type": "object",
+          "description": "Structured JSON returned by the canonical Apibara Vehicle Auction Data API. Source-dependent fields may be null or absent.",
+          "properties": {
+            "data": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true
         }
       },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "list_auction_locations",
-      "title": "List auction locations",
-      "description": "Retrieve supported auction facilities and locations.",
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "platform": {
-            "type": "string",
-            "enum": [
-              "copart",
-              "iaai"
-            ]
+      {
+        "name": "get_vehicle_history",
+        "title": "Get vehicle auction history",
+        "description": "Use for retained Copart + IAAI auction appearances for one supported vehicle. This is auction-specific history, not complete ownership, registration or accident history.",
+        "inputSchema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "identifier": {
+              "type": "string",
+              "minLength": 1,
+              "description": "VIN, lot number or slug_vin accepted by the canonical vehicle detail endpoint."
+            }
           },
-          "s": {
-            "type": "string"
+          "required": [
+            "identifier"
+          ]
+        },
+        "outputSchema": {
+          "type": "object",
+          "description": "Structured JSON returned by the canonical Apibara Vehicle Auction Data API. Source-dependent fields may be null or absent.",
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            },
+            "meta": {
+              "type": "object",
+              "description": "Pagination metadata. Treat cursor values as opaque.",
+              "additionalProperties": true
+            }
           },
-          "country": {
-            "type": "string"
-          },
-          "state": {
-            "type": "string"
-          }
+          "additionalProperties": true
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true
         }
       },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "calculate_shipping",
-      "title": "Calculate auction-to-port shipping",
-      "description": "Retrieve supported auction-to-port shipping information by VIN or lot number when location and route data are available.",
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "vin": {
-            "type": "string"
+      {
+        "name": "get_related_vehicles",
+        "title": "Get related vehicles",
+        "description": "Use after identifying a specific vehicle to retrieve related supported auction records for comparison or discovery. Do not use as a substitute for a broad filtered inventory search.",
+        "inputSchema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "identifier": {
+              "type": "string",
+              "minLength": 1,
+              "description": "VIN, lot number or slug_vin accepted by the canonical vehicle detail endpoint."
+            },
+            "per_page": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "Maximum related records to return. Effective limits are plan-dependent."
+            }
           },
-          "lot_number": {
-            "type": "string"
+          "required": [
+            "identifier"
+          ]
+        },
+        "outputSchema": {
+          "type": "object",
+          "description": "Structured JSON returned by the canonical Apibara Vehicle Auction Data API. Source-dependent fields may be null or absent.",
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            },
+            "meta": {
+              "type": "object",
+              "description": "Pagination metadata. Treat cursor values as opaque.",
+              "additionalProperties": true
+            }
           },
-          "port": {
-            "type": "string"
-          },
-          "port_id": {
-            "type": [
-              "integer",
-              "string"
-            ]
+          "additionalProperties": true
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true
+        }
+      },
+      {
+        "name": "get_vehicle_filters",
+        "title": "Get vehicle filters",
+        "description": "Use before building a dynamic search UI or validating source-backed filter choices. Returns current filter metadata; it does not search inventory itself.",
+        "inputSchema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "platform": {
+              "type": "string",
+              "enum": [
+                "copart",
+                "iaai"
+              ],
+              "description": "Optional readable auction-source selector. Omit to retrieve combined supported filter metadata."
+            }
           }
         },
-        "anyOf": [
-          {
-            "required": [
-              "vin"
-            ]
+        "outputSchema": {
+          "type": "object",
+          "description": "Structured JSON returned by the canonical Apibara Vehicle Auction Data API. Source-dependent fields may be null or absent.",
+          "properties": {
+            "data": {
+              "type": "object",
+              "additionalProperties": true
+            }
           },
-          {
-            "required": [
-              "lot_number"
-            ]
+          "additionalProperties": true
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true
+        }
+      },
+      {
+        "name": "list_auction_locations",
+        "title": "List auction locations",
+        "description": "Use to resolve supported auction yards, branches or facilities and their location metadata. Use calculate_shipping when the user needs auction-to-port pricing instead.",
+        "inputSchema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "platform": {
+              "type": "string",
+              "enum": [
+                "copart",
+                "iaai"
+              ],
+              "description": "Optional source selector: Copart or IAA / IAAI."
+            },
+            "s": {
+              "type": "string",
+              "description": "Free-text location search, such as a facility name, city or supported location term."
+            },
+            "country": {
+              "type": "string",
+              "description": "Optional country filter supported by the locations endpoint."
+            },
+            "state": {
+              "type": "string",
+              "description": "Optional state or region filter, for example FL."
+            }
           }
-        ]
+        },
+        "outputSchema": {
+          "type": "object",
+          "description": "Structured JSON returned by the canonical Apibara Vehicle Auction Data API. Source-dependent fields may be null or absent.",
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            },
+            "meta": {
+              "type": "object",
+              "description": "Pagination metadata. Treat cursor values as opaque.",
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true
+        }
       },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "get_api_usage",
-      "title": "Get API usage",
-      "description": "Retrieve authenticated API usage and current plan limits for the supplied X-API-Key.",
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {}
+      {
+        "name": "calculate_shipping",
+        "title": "Calculate auction-to-port shipping",
+        "description": "Use when the user asks for supported auction-to-port shipping pricing for a known vehicle. Supply either VIN or lot_number; optionally narrow the destination with port or port_id. Availability depends on auction location and route data.",
+        "inputSchema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "vin": {
+              "type": "string",
+              "description": "Vehicle Identification Number. Provide this or lot_number."
+            },
+            "lot_number": {
+              "type": "string",
+              "description": "Auction lot number. Provide this or vin."
+            },
+            "port": {
+              "type": "string",
+              "description": "Optional destination port name supported by the shipping endpoint."
+            },
+            "port_id": {
+              "type": [
+                "integer",
+                "string"
+              ],
+              "description": "Optional destination port identifier when known."
+            }
+          },
+          "anyOf": [
+            {
+              "required": [
+                "vin"
+              ]
+            },
+            {
+              "required": [
+                "lot_number"
+              ]
+            }
+          ]
+        },
+        "outputSchema": {
+          "type": "object",
+          "description": "Structured JSON returned by the canonical Apibara Vehicle Auction Data API. Source-dependent fields may be null or absent.",
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true
+        }
       },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
+      {
+        "name": "get_api_usage",
+        "title": "Get API usage",
+        "description": "Use to inspect request usage and current plan limits for the supplied X-API-Key. This is account/API-quota metadata, not vehicle data.",
+        "inputSchema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "outputSchema": {
+          "type": "object",
+          "description": "Structured JSON returned by the canonical Apibara Vehicle Auction Data API. Source-dependent fields may be null or absent.",
+          "properties": {
+            "data": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true
+        }
       }
-    }
-  ],
-  "ttlMs": 3600000,
-  "cacheScope": "public"
+    ]
+  }
 }
