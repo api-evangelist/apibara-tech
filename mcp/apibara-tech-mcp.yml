@@ -24,8 +24,10 @@ server:
   instructions: Read-only vehicle auction data tools. X-API-Key is required for tool calls.
 tools:
 - name: search_auction_vehicles
+  description: Use for broad inventory discovery, filtering and incremental synchronization across supported
+    Copart and IAA / IAAI records. For one known VIN or lot use get_vehicle; for retained auction appearances
+    use get_vehicle_history.
   title: Search auction vehicles
-  description: Search supported Copart and IAAI vehicle auction records.
   inputs:
   - s
   - platform
@@ -46,45 +48,54 @@ tools:
   - per_page
   - cursor
 - name: get_vehicle
+  description: Use when the user already has a VIN, lot number or supported slug and needs the current
+    normalized vehicle record. Request include history and/or vin_lots when the same tool call should
+    also return retained sale history or other known auction lots for the same VIN.
   title: Get vehicle
-  description: Retrieve one supported vehicle record by VIN or slug_vin.
   inputs:
   - identifier
 - name: get_vehicle_history
+  description: Use for retained Copart + IAAI auction appearances for one supported vehicle. This is auction-specific
+    history, not complete ownership, registration or accident history.
   title: Get vehicle history
-  description: Retrieve retained Copart + IAAI auction history for one supported vehicle.
   inputs:
   - identifier
 - name: get_related_vehicles
+  description: Use after identifying a specific vehicle to retrieve related supported auction records
+    for comparison or discovery. Do not use as a substitute for a broad filtered inventory search.
   title: Get related vehicles
-  description: Retrieve related supported auction vehicles.
   inputs:
   - identifier
   - per_page
 - name: get_vehicle_filters
+  description: Use before building a dynamic search UI or validating source-backed filter choices. Returns
+    current filter metadata; it does not search inventory itself.
   title: Get vehicle filters
-  description: Retrieve current supported filter metadata for search UIs and integrations.
   inputs:
   - platform
 - name: list_auction_locations
+  description: Use to resolve supported auction yards, branches or facilities and their location metadata.
+    Use calculate_shipping when the user needs auction-to-port pricing instead.
   title: List auction locations
-  description: Retrieve supported auction facilities and locations.
   inputs:
   - platform
   - s
   - country
   - state
 - name: calculate_shipping
+  description: Use when the user asks for supported auction-to-port shipping pricing for a known vehicle.
+    Supply either VIN or lot_number; optionally narrow the destination with port or port_id. Availability
+    depends on auction location and route data.
   title: Calculate shipping
-  description: Retrieve supported auction-to-port shipping information by VIN or lot number.
   inputs:
   - vin
   - lot_number
   - port
   - port_id
 - name: get_api_usage
+  description: Use to inspect request usage and current plan limits for the supplied X-API-Key. This is
+    account/API-quota metadata, not vehicle data.
   title: Get API usage
-  description: Retrieve authenticated API usage and current plan limits for the supplied key.
   inputs: []
 tool_count: 8
 x-evidence:
@@ -119,3 +130,4 @@ tool_quality:
   scored: false
   note: Facts from the saved tools/list capture (mcp_tool_quality.py); recorded, not scored. Checks learned
     from Glimind's agent-readiness audit.
+tools_count: 8
