@@ -715,3 +715,9 @@ x-apibara-agentic-access:
   read_operations: 13
   write_operations: 0
   note: The current Vehicle Auction Data API contract is data-access oriented. Operation-level x-agentic-access is authoritative for agent execution semantics.
+x-provenance:
+  method: harvested
+  publisher: Apibara.tech
+  source: https://apibara.tech/openapi/v1.json
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
