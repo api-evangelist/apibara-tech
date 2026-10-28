@@ -1,4 +1,4 @@
-# apibara-tech
+# Apibara.tech
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -64,4 +64,135 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Developer platform offering a normalized JSON API over Copart and IAA/IAAI vehicle auction records — current inventory, retained auction/sale history, VIN and lot details, pricing, auction status, locations, shipping estimates, and source-provided media. Not affiliated with the blockchain indexer at
+Independent developer platform providing structured vehicle auction data (normalized JSON for Copart and IAA/IAAI current and historical auction records), including vehicle search, VIN/lot details, photos, prices, sale history, filter metadata, auction locations, shipping calculation, and an image proxy. Offers both a REST/JSON API and a hosted read-only MCP server. Not affiliated with the similarly named apibara.com blockchain indexer.
+
+**Areas:** Automotive · vehicle-auction-data · Copart · IAAI · vin-history · Marketplace · REST API · Vehicle Auctions · Salvage Auctions · VIN Data · Used-Car Marketplace Data · Data Infrastructure
+
+## Apibara.tech on APIs.io
+
+Everything profiled for Apibara.tech is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/apibara-tech/](https://apis.io/providers/apibara-tech/)** — or go straight to one of the APIs or properties below.
+
+### APIs (9)
+
+- [Apibara.tech Filters API](https://apis.io/apis/apibara-tech/apibara-tech-filters-api/) — Available filters metadata.
+- [Apibara.tech Image Proxy API](https://apis.io/apis/apibara-tech/apibara-tech-image-proxy-api/) — Proxy supported auction vehicle images.
+- [Apibara.tech Locations API](https://apis.io/apis/apibara-tech/apibara-tech-locations-api/) — Auction facility and location search.
+- [Apibara.tech Related Vehicles API](https://apis.io/apis/apibara-tech/apibara-tech-related-vehicles-api/) — Related and similar auction vehicles.
+- [Apibara.tech Shipping API](https://apis.io/apis/apibara-tech/apibara-tech-shipping-api/) — Auction-to-port delivery prices.
+- [Apibara.tech URL Tools API](https://apis.io/apis/apibara-tech/apibara-tech-url-tools-api/) — Resolve vehicle details from auction URLs.
+- [Apibara.tech Usage API](https://apis.io/apis/apibara-tech/apibara-tech-usage-api/) — API usage and plan limit information.
+- [Apibara.tech Vehicle History API](https://apis.io/apis/apibara-tech/apibara-tech-vehicle-history-api/) — VIN and lot auction history.
+- [Apibara.tech Vehicles API](https://apis.io/apis/apibara-tech/apibara-tech-vehicles-api/) — Search and retrieve vehicle auction records.
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### Arazzo workflows (2)
+
+Multi-step workflows that chain operations into a business task.
+
+- [Apibara incremental vehicle-auction synchronization](https://apis.io/arazzos/apibara-tech/apibara-tech-incremental-sync.arazzo/)
+- [Apibara VIN auction research](https://apis.io/arazzos/apibara-tech/apibara-tech-vin-research.arazzo/)
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [mcp](https://apis.io/servers/apibara-tech/mcp/)
+
+#### Overlays (1)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Apibara Tech Vehicle Auction Overlay](https://apis.io/overlays/apibara-tech/apibara-tech-vehicle-auction-overlay/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Apibara Tech Authentication](https://apis.io/security/apibara-tech/apibara-tech-authentication/)
+- [Apibara Tech Domain Security](https://apis.io/security/apibara-tech/apibara-tech-domain-security/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Apibara Tech Plans Pricing](https://apis.io/plans/apibara-tech/apibara-tech-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Apibara Tech Rate Limits](https://apis.io/rate-limits/apibara-tech/apibara-tech-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://apibara.tech/en)
+- [Documentation](https://apibara.tech/en/products/vehicle-auction-data-api/docs)
+- [Pricing](https://apibara.tech/en/pricing)
+- [Sign up](https://apibara.tech/en/register)
+- [Support](https://apibara.tech/en/contact)
+- [Changelog](https://apibara.tech/en/changelog)
+- [Blog](https://apibara.tech/en/blog)
+- [Security](https://apibara.tech/en/security)
+- [Terms of service](https://apibara.tech/en/terms)
+- [Privacy policy](https://apibara.tech/en/privacy)
+- [Status](https://apibara.tech/en/status)
+
+## API Evangelist rating
+
+**Kin Score 58.7** — strong · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 75.0 |
+| Contract quality | 54.1 |
+| Contract governance | 4.5 |
+| Operational transparency | 73.7 |
+| Developer ergonomics | 54.2 |
+| Access clarity | 76.3 |
+
+**Agent readiness 50.8** — agent-native
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | yes |
+| Reversibility Documented | na |
+| MCP Server | documented (partial credit) |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | na |
+| Error Semantics | verified |
+| OpenAPI Examples | verified |
+| Rate Limit Signal | verified |
+| Event Surface Described | — |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | na |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | partial |
+| Operation Distinctiveness | distinct |
+
+**Regulatory alignment 24.5** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/apibara-tech/](https://apis.io/providers/apibara-tech/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Apibara.tech: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/apibara-tech/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
