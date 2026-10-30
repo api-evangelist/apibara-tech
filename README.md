@@ -72,7 +72,7 @@ Independent developer platform providing structured vehicle auction data (normal
 
 Everything profiled for Apibara.tech is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/apibara-tech/](https://apis.io/providers/apibara-tech/)** — or go straight to one of the APIs or properties below.
 
-### APIs (9)
+### APIs (11)
 
 - [Apibara.tech Filters API](https://apis.io/apis/apibara-tech/apibara-tech-filters-api/) — Available filters metadata.
 - [Apibara.tech Image Proxy API](https://apis.io/apis/apibara-tech/apibara-tech-image-proxy-api/) — Proxy supported auction vehicle images.
@@ -83,6 +83,8 @@ Everything profiled for Apibara.tech is published on APIs.io rather than in this
 - [Apibara.tech Usage API](https://apis.io/apis/apibara-tech/apibara-tech-usage-api/) — API usage and plan limit information.
 - [Apibara.tech Vehicle History API](https://apis.io/apis/apibara-tech/apibara-tech-vehicle-history-api/) — VIN and lot auction history.
 - [Apibara.tech Vehicles API](https://apis.io/apis/apibara-tech/apibara-tech-vehicles-api/) — Search and retrieve vehicle auction records.
+- [Apibara.tech Change Stream API](https://apis.io/apis/apibara-tech/apibara-tech-change-stream-api/) — Durable, sequence-ordered material vehicle changes for reliable synchronization and replay.
+- [Apibara.tech Market API](https://apis.io/apis/apibara-tech/apibara-tech-market-api/) — The Market API from Apibara.tech — 1 operation(s) for market.
 
 ### Published properties
 
@@ -95,17 +97,49 @@ Multi-step workflows that chain operations into a business task.
 - [Apibara incremental vehicle-auction synchronization](https://apis.io/arazzos/apibara-tech/apibara-tech-incremental-sync.arazzo/)
 - [Apibara VIN auction research](https://apis.io/arazzos/apibara-tech/apibara-tech-vin-research.arazzo/)
 
+#### AsyncAPI (1)
+
+Event-driven and webhook contracts.
+
+- [Apibara Tech Webhooks](https://apis.io/asyncapis/apibara-tech/apibara-tech-webhooks/)
+
 #### MCP servers (1)
 
 Model Context Protocol servers that expose the API to agents.
 
 - [mcp](https://apis.io/servers/apibara-tech/mcp/)
 
-#### Overlays (1)
+#### Agentic access (1)
 
-OpenAPI overlays, including conversational phrasing for each operation.
+Which operations an agent can call, which act, and which need a human in the loop.
 
-- [Apibara Tech Vehicle Auction Overlay](https://apis.io/overlays/apibara-tech/apibara-tech-vehicle-auction-overlay/)
+- [Apibara Tech Agentic Access](https://apis.io/agentic-access/apibara-tech/apibara-tech-agentic-access/)
+
+#### JSON Schema (9)
+
+The data models the API reads and writes.
+
+- [FiltersResponse](https://apis.io/schemas/apibara-tech/apibara-tech-filters-response/)
+- [LocationsResponse](https://apis.io/schemas/apibara-tech/apibara-tech-locations-response/)
+- [MarketSoldPriceStatsResponse](https://apis.io/schemas/apibara-tech/apibara-tech-market-sold-price-stats-response/)
+- [ShippingResponse](https://apis.io/schemas/apibara-tech/apibara-tech-shipping-response/)
+- [UsageResponse](https://apis.io/schemas/apibara-tech/apibara-tech-usage-response/)
+- [VehicleChangesResponse](https://apis.io/schemas/apibara-tech/apibara-tech-vehicle-changes-response/)
+- [VehicleDetailsResponse](https://apis.io/schemas/apibara-tech/apibara-tech-vehicle-details-response/)
+- [VehicleHistoryResponse](https://apis.io/schemas/apibara-tech/apibara-tech-vehicle-history-response/)
+- [VehicleListResponse](https://apis.io/schemas/apibara-tech/apibara-tech-vehicle-list-response/)
+
+#### JSON-LD (1)
+
+Linked-data contexts for the provider's vocabulary.
+
+- [Apibara Tech Context](https://apis.io/jsonld/apibara-tech/apibara-tech-context/)
+
+#### Governance rules (1)
+
+Spectral rulesets for the provider's contracts.
+
+- [Apibara.tech API Rules](https://apis.io/rules/apibara-tech/apibara-tech-rules/)
 
 #### Security (2)
 
@@ -114,17 +148,24 @@ Authentication, trust centre, and vulnerability disclosure.
 - [Apibara Tech Authentication](https://apis.io/security/apibara-tech/apibara-tech-authentication/)
 - [Apibara Tech Domain Security](https://apis.io/security/apibara-tech/apibara-tech-domain-security/)
 
-#### Plans and pricing (1)
+#### Plans and pricing (2)
 
 Published plans, tiers and prices.
 
 - [Apibara Tech Plans Pricing](https://apis.io/plans/apibara-tech/apibara-tech-plans-pricing/)
+- [Apibara Tech Price Estimates](https://apis.io/plans/apibara-tech/apibara-tech-price-estimates/)
 
 #### Rate limits (1)
 
 Published request limits.
 
 - [Apibara Tech Rate Limits](https://apis.io/rate-limits/apibara-tech/apibara-tech-rate-limits/)
+
+#### FinOps (1)
+
+What the API costs to run, by operation.
+
+- [Apibara Tech Finops](https://apis.io/finops/apibara-tech/apibara-tech-finops/)
 
 ## Where to find this API
 
